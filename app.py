@@ -1,13 +1,4 @@
-from flask import Flask, render_template
-from flask_bootstrap import Bootstrap
-
-app = Flask(__name__)
-Bootstrap(app)
-
-
-@app.route('/')
-def index():
-    return render_template('home.html', username='jason')
+from my_calendar import app
 
 
 if __name__ == '__main__':
