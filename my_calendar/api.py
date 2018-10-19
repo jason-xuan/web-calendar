@@ -28,6 +28,8 @@ def login():
     if db_session.query(User).filter(User.email == email).count() == 0:
         return error_msg(404, 'user not exist')
     user = db_session.query(User).filter(User.email == email).one()
+    if not user.verify(password):
+        return error_msg(403, 'wrong password')
     session['user_id'] = user.user_id
     return json_response({
         'code': 200,

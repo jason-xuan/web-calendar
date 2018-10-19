@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Integer, Boolean, DateTime
 from sqlalchemy.ext.declarative import declarative_base
+from passlib.hash import sha256_crypt
 
 
 Base = declarative_base()
@@ -11,8 +12,12 @@ class User(Base):
     email = Column(String(50), unique=True)
     password = Column(String(100))
 
-    def __init__(self, email:str, password:str):
+    def __init__(self, email: str, password: str):
         self.email = email
+        self.password = sha256_crypt.hash(password)
+
+    def verify(self, password):
+        return sha256_crypt.verify(password, self.password)
 
 
 class Event(Base):

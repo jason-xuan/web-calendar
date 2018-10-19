@@ -4,7 +4,7 @@
 ```javascript
 fetch('/api/users/register/', {
     method: "POST",
-    body: JSON.stringify({email:'xua@wustl', password:'1123'}),
+    body: JSON.stringify({email:'xuan@wustl', password:'1123'}),
     headers: {"Content-Type": "application/json; charset=utf-8",}
     })
   .then(res => res.json())
@@ -18,8 +18,8 @@ fetch('/api/users/register/', {
 ```javascript
 fetch('/api/users/login/', {
     method: "POST",
-    body: JSON.stringify({email:'xua@wustl', password:'1123'}),
-    headers: {"Content-Type": "application/json; charset=utf-8",}
+    body: JSON.stringify({email:'xuan@wustl', password:'1123'}),
+    headers: {"Content-Type": "application/json; charset=utf-8"}
     })
   .then(res => res.json())
   .then(response => console.log('Success:', JSON.stringify(response)))
