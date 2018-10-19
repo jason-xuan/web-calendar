@@ -1,10 +1,12 @@
 from flask import Flask, render_template
-from flask.ext.restful import Api
-from .api import User, Event, EventByID
+from .db import db_session
+from .api import bp_api
 
 
 app = Flask(__name__)
-api = Api(api)
+app.register_blueprint(bp_api)
+app.secret_key = 'super secret key'
+app.config['SESSION_TYPE'] = 'memcached'
 
 
 @app.route('/')
@@ -12,6 +14,6 @@ def index():
     return render_template('home.html', username='jason')
 
 
-api.add_resource(User, '/user/')
-api.add_resource(Event, '/event/')
-api.add_resource(EventByID, '/event/<string:event_id>')
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db_session.remove()
