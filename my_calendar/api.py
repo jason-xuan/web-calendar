@@ -1,7 +1,7 @@
 from flask.blueprints import Blueprint
 from flask import session, g, request, Response
 from .modules import User, Event, Tag
-from .database import search_user_by_id, search_user_by_email, insert_user
+from .database import search_user_by_id, search_user_by_email, insert_user, insert_event, get_events_of_user
 from .utils import need_login, error_msg, json_response, check_fields
 
 
@@ -64,13 +64,26 @@ def logout():
 
 @bp_api.route('/events/user/', methods=['POST'])
 @need_login
+@check_fields('year', 'month')
 def get_user_events():
-    pass
-
-
-@bp_api.route('/events/', methods=['POST'])
-@check_fields('action')
-@need_login
-def get_event(event_id):
     content = request.json
+    year, month = int(content['year']), int(content['month'])
+    events = get_events_of_user(g.user, year, month)
+    return json_response({
+        'code': 200,
+        'events': [event.to_dict() for event in events]
+    })
 
+
+@bp_api.route('/events/create', methods=['POST'])
+@need_login
+@check_fields('action', 'event_name', 'event_time')
+def get_event():
+    content = request.json
+    event_name, event_time = content['event_name'], content['event_time']
+    event = Event.create(event_name, event_time)
+    insert_event(g.user, event)
+    return json_response({
+        'code': 201,
+        'msg': f'{event_name} create successfully'
+    })

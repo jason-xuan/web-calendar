@@ -5,6 +5,7 @@ https://github.com/pallets/flask/blob/master/examples/tutorial/flaskr
 from flask import g
 import mysql.connector
 from .modules import User, Event, Tag
+from datetime import datetime
 
 
 db_config = {
@@ -91,13 +92,18 @@ def insert_event(user: User, event: Event):
 
 
 def get_events_of_user(user: User, year: int, month: int):
-    # cursor = get_db().cursor()
-    # cursor.execute('')
-    # results = cursor.fetchall()
-    # events =
-    # cursor.close()
-    # return events
-    pass
+    cursor = get_db().cursor()
+    start = datetime(year, month, 1)
+    # if month is 12, then add the year
+    end = datetime(year, month+1, 1) if month != 12 else datetime(year+1, 1, 1)
+    cursor.execute("""SELECT `event_id`, `event_name`, `event_time` 
+    FROM `events` NATURAL JOIN `users_events` 
+    WHERE `user_id`=%s AND (`event_time` BETWEEN %s AND %s)
+    """, (user.user_id, start, end))
+    results = cursor.fetchall()
+    events = [Event(event_id, event_name, event_time) for (event_id, event_name, event_time) in results]
+    cursor.close()
+    return events
 
 
 # from my_calendar.database import get_db, insert_user, search_user_by_email, search_user_by_id

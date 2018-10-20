@@ -35,6 +35,13 @@ class Event:
     def __repr__(self):
         return f'{self.event_name}:{self.event_time}'
 
+    def to_dict(self):
+        return {
+            'event_id': self.event_id,
+            'event_name': self.event_name,
+            'event_time': self.event_time
+        }
+
 
 class Tag:
 
@@ -42,10 +49,17 @@ class Tag:
     def create(tag_name: str, activated: bool=False):
         return Tag(new_uuid(), tag_name, activated)
 
-    def __init__(self, tag_id: str, tag_name: str, is_activated: bool=False):
+    def __init__(self, tag_id: str, tag_name: str, activated: bool=False):
         self.tag_id = tag_id
         self.tag_name = tag_name
-        self.is_activated = is_activated
+        self.activated = activated
 
     def __repr__(self):
         return f'{self.tag_name}:{"activated" if self.activated else "not activated"}'
+
+    def to_dict(self):
+        return {
+            'tag_id': self.tag_id,
+            'tag_name': self.tag_name,
+            'activated': self.activated
+        }
