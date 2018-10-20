@@ -1,8 +1,8 @@
 from flask.blueprints import Blueprint
 from flask import session, g, request, Response
 from .modules import User, Event, Tag
+from .database import search_user_by_id, search_user_by_email, insert_user
 from .utils import need_login, error_msg, json_response
-from .db import db_session
 
 
 bp_api = Blueprint('api', __name__, url_prefix='/api')
@@ -15,7 +15,7 @@ def load_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = db_session.query(User).filter(User.user_id == user_id).one()
+        g.user = search_user_by_id(user_id)
 
 
 @bp_api.route('/users/login/', methods=['POST'])
@@ -25,9 +25,9 @@ def login():
         return error_msg(403, 'fields not complete')
     email, password = content['email'], content['password']
     # input validation
-    if db_session.query(User).filter(User.email == email).count() == 0:
+    user = search_user_by_email(email)
+    if user is None:
         return error_msg(404, 'user not exist')
-    user = db_session.query(User).filter(User.email == email).one()
     if not user.verify(password):
         return error_msg(403, 'wrong password')
     session['user_id'] = user.user_id
@@ -46,12 +46,12 @@ def register():
         return error_msg(403, 'fields not complete')
     email, password = content['email'], content['password']
     # check if exist same user
-    if db_session.query(User).filter(User.email == email).count() != 0:
+    if search_user_by_email(email) is not None:
         return error_msg(403, 'user already exist')
-    user = User(email, password)
-    db_session.add(user)
-    db_session.commit()
+    user = User.create(email, password)
+    insert_user(user)
     return json_response({
+        'code': 201,
         'email': user.email
     })
 
