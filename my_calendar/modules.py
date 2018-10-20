@@ -1,34 +1,41 @@
-from sqlalchemy import Column, String, Integer, Boolean, DateTime
-from sqlalchemy.ext.declarative import declarative_base
 from passlib.hash import sha256_crypt
+from datetime import datetime
 
 
-Base = declarative_base()
+class User:
 
+    @staticmethod
+    def create(email: str, password: str):
+        return User(email, sha256_crypt.hash(password))
 
-class User(Base):
-    __tablename__ = 'user'
-    user_id = Column(Integer(), primary_key=True, autoincrement=True)
-    email = Column(String(50), unique=True)
-    password = Column(String(100))
-
-    def __init__(self, email: str, password: str):
+    def __init__(self, email: str, password: str, user_id: int=None):
+        self.user_id = user_id
         self.email = email
-        self.password = sha256_crypt.hash(password)
+        self.password = password
 
     def verify(self, password):
         return sha256_crypt.verify(password, self.password)
 
-
-class Event(Base):
-    __tablename__ = 'event'
-    event_id = Column(Integer(), primary_key=True, autoincrement=True)
-    event_name = Column(String(50))
-    event_time = Column(DateTime())
+    def __repr__(self):
+        return f'{self.user_id}:{self.email}'
 
 
-class Tag(Base):
-    __tablename__ = 'tag'
-    tag_id = Column(Integer(), primary_key=True, autoincrement=True)
-    tag_name = Column(String(50))
-    is_activated = Column(Boolean())
+class Event:
+
+    def __init__(self, event_name: str, event_time: datetime, event_id: int=None):
+        self.event_id = event_id
+        self.event_name = event_name
+        self.event_time = event_time
+
+    def __repr__(self):
+        return f'{self.event_name}:{self.event_time}'
+
+
+class Tag:
+    def __init__(self, tag_name: str, is_activated: bool=False, tag_id: int=None):
+        self.tag_id = tag_id
+        self.tag_name = tag_name
+        self.is_activated = is_activated
+
+    def __repr__(self):
+        return f'{self.tag_name}:{"activated" if self.is_activated else "not activated"}'

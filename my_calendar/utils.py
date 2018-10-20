@@ -22,6 +22,3 @@ def need_login(func):
         return func(*args, **kwargs)
     return return_func
 
-
-
-
