@@ -2,7 +2,7 @@ from flask.blueprints import Blueprint
 from flask import session, g, request, Response
 from .modules import User, Event, Tag
 from .database import search_user_by_id, search_user_by_email, insert_user
-from .utils import need_login, error_msg, json_response
+from .utils import need_login, error_msg, json_response, check_fields
 
 
 bp_api = Blueprint('api', __name__, url_prefix='/api')
@@ -19,10 +19,9 @@ def load_user():
 
 
 @bp_api.route('/users/login/', methods=['POST'])
+@check_fields('email', 'password')
 def login():
     content = request.json
-    if 'email' not in content or 'password' not in content:
-        return error_msg(403, 'fields not complete')
     email, password = content['email'], content['password']
     # input validation
     user = search_user_by_email(email)
@@ -38,12 +37,9 @@ def login():
 
 
 @bp_api.route('/users/register/', methods=['POST'])
+@check_fields('email', 'password')
 def register():
     content = request.json
-    if content is None:
-        return error_msg(403, 'post type must be json')
-    if 'email' not in content or 'password' not in content:
-        return error_msg(403, 'fields not complete')
     email, password = content['email'], content['password']
     # check if exist same user
     if search_user_by_email(email) is not None:
@@ -66,13 +62,15 @@ def logout():
     })
 
 
-@bp_api.route('/events/user/<string:user_id>', methods=['GET'])
+@bp_api.route('/events/user/', methods=['POST'])
 @need_login
-def get_user_events(user_id):
+def get_user_events():
     pass
 
 
-@bp_api.route('/events/<string:event_id>', methods=['GET'])
+@bp_api.route('/events/', methods=['POST'])
+@check_fields('action')
 @need_login
 def get_event(event_id):
-    pass
+    content = request.json
+

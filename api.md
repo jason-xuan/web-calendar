@@ -5,6 +5,8 @@ there are three types of module:
  2.  event, shown in calendar
  3.  tag, tag on event
  
+ * use uuid4 to generate the unique global id
+ 
  ### what api we need
  * basic control: register, login, logout
  * events: create, read, modify, delete events

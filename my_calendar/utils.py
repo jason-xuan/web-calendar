@@ -1,5 +1,6 @@
 from functools import wraps
-from flask import g, Response
+from flask import g, Response, request
+from uuid import uuid4
 import json
 
 
@@ -22,3 +23,21 @@ def need_login(func):
         return func(*args, **kwargs)
     return return_func
 
+
+def check_fields(*fields):
+    def actual_decorator(func):
+        @wraps(func)
+        def wrapper_check_fields(*args, **kwargs):
+            json_content = request.json
+            if json_content is None:
+                return error_msg(403, 'post type must be json')
+            for field in fields:
+                if field not in json_content:
+                    return error_msg(403, 'fields not complete')
+            return func(*args, **kwargs)
+        return wrapper_check_fields
+    return actual_decorator
+
+
+def new_uuid():
+    return str(uuid4()).replace('-', '')
