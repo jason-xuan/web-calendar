@@ -77,7 +77,7 @@ def get_user_events():
 
 @bp_api.route('/events/create', methods=['POST'])
 @need_login
-@check_fields('action', 'event_name', 'event_time')
+@check_fields('event_name', 'event_time')
 def get_event():
     content = request.json
     event_name, event_time = content['event_name'], content['event_time']
