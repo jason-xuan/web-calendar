@@ -1,0 +1,36 @@
+#prev_month {
+    float: left;
+}
+#next_month {
+    float: right;
+}
+table {
+    background: #fff;
+    border-collapse: collapse;
+    color: #222;
+    font-family: 'PT Sans', sans-serif;
+    font-size: 13px;
+    width: 100%;
+    overflow: hidden;
+    table-layout: auto;
+
+}
+td {
+    border: 1px solid #ccc;
+    color: #444;
+    vertical-align: top;
+    /*line-height: 80px;*/
+    /*text-align: center;
+    /*vertical-align: top;*/
+
+}
+tr:first-child td {
+    color: #222;
+    text-align: center;
+    font-weight: 700;
+    line-height: 22px;
+    text-align: center;
+
+    vertical-align: center;
+
+}
