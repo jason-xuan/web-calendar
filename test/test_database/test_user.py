@@ -2,7 +2,6 @@ from flask_testing import TestCase
 from my_calendar import create_app
 from my_calendar.database import db
 from my_calendar.modules import User
-import os
 
 
 class TestUser(TestCase):
@@ -17,6 +16,7 @@ class TestUser(TestCase):
         db.create_all()
 
     def tearDown(self):
+        db.session.remove()
         db.drop_all()
 
     def test_add_user(self):
