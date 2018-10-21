@@ -7,7 +7,7 @@ import os
 
 class TestUser(TestCase):
 
-    SQLALCHEMY_DATABASE_URI = "sqlite:///test_user.db"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///db_for_test.db"
     TESTING = True
 
     def create_app(self):
@@ -18,8 +18,6 @@ class TestUser(TestCase):
 
     def tearDown(self):
         db.drop_all()
-        if os.path.exists('test_user.db'):
-            os.remove('test_user.db')
 
     def test_add_user(self):
         self.assertEqual(len(User.query.all()), 0)
@@ -63,3 +61,7 @@ class TestUser(TestCase):
         self.assertEqual(query_email.email, email)
         self.assertEqual(query_email.user_id, user_id)
         self.assertTrue(query_email.verify(password))
+
+    def test_query_user_not_exist(self):
+        self.assertIsNone(User.query.filter_by(email='this@xua').first())
+        self.assertIsNone(User.query.filter_by(user_id='sdfsdf').first())
