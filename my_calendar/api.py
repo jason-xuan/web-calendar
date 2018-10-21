@@ -7,7 +7,6 @@ from .utils import need_login, error_msg, json_response, check_fields
 
 bp_api = Blueprint('api', __name__, url_prefix='/api')
 
-
 @bp_api.before_app_request
 def load_user():
     user_id = session.get('user_id')

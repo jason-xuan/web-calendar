@@ -35,26 +35,48 @@
     </table>
 
 </div>
-<div style="width: 20%; margin: 20px;">
+<div style="width: 20%; margin: 20px; float: left;">
     <form class="px-4 py-3">
         <div class="form-group">
-            <label for="exampleDropdownFormEmail1">Email address</label>
-            <input type="email" class="form-control" id="exampleDropdownFormEmail1" placeholder="email@example.com">
+            <label for="login_email">Email address</label>
+            <input type="email" class="form-control" id="login_email" placeholder="email@example.com">
         </div>
         <div class="form-group">
-            <label for="exampleDropdownFormPassword1">Password</label>
-            <input type="password" class="form-control" id="exampleDropdownFormPassword1" placeholder="Password">
+            <label for="login_password">Password</label>
+            <input type="password" class="form-control" id="login_password" placeholder="Password">
         </div>
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="dropdownCheck">
-            <label class="form-check-label" for="dropdownCheck">
-                Remember me
-            </label>
-        </div>
-        <button type="submit" class="btn btn-primary">Sign in</button>
+        <button type="submit" class="btn btn-primary" id="login_btn">Sign in</button>
     </form>
 </div>
+<div style="width: 20%; margin: 20px; float: right">
+    <form class="px-4 py-3">
+        <div class="form-group">
+            <label for="register_email">Email address</label>
+            <input type="email" class="form-control" id="register_email" placeholder="email@example.com">
+        </div>
+        <div class="form-group">
+            <label for="register_password">Password</label>
+            <input type="password" class="form-control" id="register_password" placeholder="Password">
+        </div>
+        <button type="submit" class="btn btn-primary" id="register_btn">Sign up</button>
+    </form>
+</div>
+<div id="mydialog">
+    <h4>Add Event</h4>
+    Event:<input type="text" name="title" id="title">
+    Date:<input type="date" name="date" id="date">
+    Time:<input type="time" name="time" id="time">
+    Notes:<textarea name="description" id="description"></textarea>
+
+    <input type="submit" name="Save" value="Add Event" id="save_btn">
+    <input type="submit" value="Save Changes" id="save_changes_btn">
+    <input type="submit" value="Delete Event" id="delete_event_btn">
+    <input type="hidden" id="single_event_id">
+    <input type="hidden" id="csrf_token">
+</div>
+<script type="text/javascript" src="../static/login.js"></script>
 <script type="text/javascript" src="../static/home.js"></script>
+
+
 </body>
-<script type="text/javascript" href="home.js"></script>
 </html>

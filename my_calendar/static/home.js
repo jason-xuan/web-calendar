@@ -45,7 +45,7 @@ function update () {
             if (day <= monthLength && (i > 0 || j >= startingDay)) {
                 //html += day;
                 dateCell.appendChild(document.createTextNode(day.toString()));
-                dateCell.setAttribute("id", "day" + day.toString());
+                dateCell.setAttribute("id",cal.year.toString() + "-" + (cal.month + 1).toString() + "-" + day.toString());
                 dateCell.setAttribute("class", "editable");
                 weekRow.appendChild(dateCell);
                 day++;
@@ -68,6 +68,12 @@ function clearCalendar() {
         main.removeChild(main.lastChild);
     }
 }
+//when you click the datecell, it can show the edit ui.
+$(document).on("click", ".editable", function() {
+      //alert("hi");
+        
+    });
+
 document.getElementById("next_month").addEventListener("click", function(){
     if(cal.month == 11) {
         cal.month = 0;
@@ -89,5 +95,4 @@ document.getElementById("prev_month").addEventListener("click", function(){
     update();
 
 }, false);
-
 update();

@@ -2,9 +2,11 @@ from flask import Flask
 from my_calendar.home import bp_home
 from my_calendar.api import bp_api
 from .database import init_app
+from datetime import timedelta
 
 app = Flask(__name__)
-
+app.config['DEBUG'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = timedelta(seconds = 1)
 
 app.register_blueprint(bp_home)
 app.register_blueprint(bp_api)
