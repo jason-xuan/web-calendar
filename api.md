@@ -51,3 +51,56 @@ fetch('/api/users/logout',{
   .then(response => console.log('Success:', JSON.stringify(response)))
   .catch(error => console.error('Error:',error))
 ```
+
+### create event
+```javascript
+fetch('/api/events/create', {
+    method: "POST",
+    body: JSON.stringify({event_name:'dinner', event_time:new Date(2018, 5, 10, 12, 24, 0)}),
+    headers: {"Content-Type": "application/json; charset=utf-8"}
+    })
+  .then(res => res.json())
+  .then(response => console.log('Success:', JSON.stringify(response)))
+  .catch(error => console.error('Error:',error))
+```
+
+### get events
+```javascript
+fetch('/api/events/user', {
+    method: "POST",
+    body: JSON.stringify({year: 2018, month: 6}),
+    headers: {"Content-Type": "application/json; charset=utf-8"}
+    })
+  .then(res => res.json())
+  .then(response => console.log('Success:', JSON.stringify(response)))
+  .catch(error => console.error('Error:',error))
+```
+
+### modify events
+```javascript
+fetch('/api/events/update', {
+    method: "POST",
+    body: JSON.stringify({
+        event_id:"1aa25fabeca440d4a409799392f19844",
+        update_fields: {
+            event_name: 'lunch'
+        }
+    }),
+    headers: {"Content-Type": "application/json; charset=utf-8"}
+    })
+  .then(res => res.json())
+  .then(response => console.log('Success:', JSON.stringify(response)))
+  .catch(error => console.error('Error:',error))
+```
+
+### delete events
+```javascript
+fetch('/api/events/delete', {
+    method: "POST",
+    body: JSON.stringify({event_id:"a33c41986ecb40179aca0df1b09f86d6"}),
+    headers: {"Content-Type": "application/json; charset=utf-8"}
+    })
+  .then(res => res.json())
+  .then(response => console.log('Success:', JSON.stringify(response)))
+  .catch(error => console.error('Error:',error))
+```
