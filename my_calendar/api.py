@@ -64,7 +64,7 @@ def logout():
     })
 
 
-@bp_api.route('/events/user/', methods=['POST'])
+@bp_api.route('/events/user', methods=['POST'])
 @need_login
 @check_fields('year', 'month')
 def get_user_events():
@@ -83,7 +83,7 @@ def get_user_events():
 @bp_api.route('/events/create', methods=['POST'])
 @need_login
 @check_fields('event_name', 'event_time')
-def get_event():
+def get_create():
     content = request.json
     event_name, event_time = content['event_name'], content['event_time']
     event = Event.create(event_name, event_time)
@@ -92,4 +92,37 @@ def get_event():
     return json_response({
         'code': 201,
         'msg': f'{event_name} create successfully'
+    })
+
+
+@bp_api.route('/events/modify', methods=['POST'])
+@need_login
+@check_fields('event_id', 'update_fields')
+def update_events():
+    content = request.json
+    event_id, update_fields = content['event_id'], content['update_fields']
+    event = Event.query.filter_by(event_id=event_id).first()
+    if 'event_name' in update_fields:
+        event.event_name = update_fields['event_name']
+    elif 'event_time' in update_fields:
+        event.event_name = update_fields['event_name']
+    else:
+        return error_msg(403, 'fields not complete')
+    db.session.commit()
+    return json_response({
+        'code': 200,
+    })
+
+
+@bp_api.route('/events/delete', methods=['POST'])
+@need_login
+@check_fields('event_id')
+def delete_event():
+    content = request.json
+    event_id = content['event_id']
+    event = Event.query.filter_by(event_id=event_id).first()
+    db.session.delete(event)
+    db.session.commit()
+    return json_response({
+        'code': 200
     })

@@ -40,7 +40,7 @@ class Event(db.Model):
             'event_id': self.event_id,
             'owner': self.owner.email,
             'event_name': self.event_name,
-            'event_time': self.event_time,
+            'event_time': str(self.event_time),
         }
 
 
