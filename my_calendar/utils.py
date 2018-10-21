@@ -31,9 +31,11 @@ def check_fields(*fields):
             json_content = request.json
             if json_content is None:
                 return error_msg(403, 'post type must be json')
-            for field in fields:
+            for (field, field_type) in fields:
                 if field not in json_content:
                     return error_msg(403, 'fields not complete')
+                if type(json_content[field]) is not field_type:
+                    return error_msg(403, f'error type of {field}: expect {field_type} but get {type(field)}')
             return func(*args, **kwargs)
         return wrapper_check_fields
     return actual_decorator

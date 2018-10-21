@@ -20,7 +20,7 @@ def load_user():
 
 
 @bp_api.route('/users/login/', methods=['POST'])
-@check_fields('email', 'password')
+@check_fields(('email', str), ('password', str))
 def login():
     content = request.json
     email, password = content['email'], content['password']
@@ -38,7 +38,7 @@ def login():
 
 
 @bp_api.route('/users/register/', methods=['POST'])
-@check_fields('email', 'password')
+@check_fields(('email', str), ('password', str))
 def register():
     content = request.json
     email, password = content['email'], content['password']
@@ -66,7 +66,7 @@ def logout():
 
 @bp_api.route('/events/user', methods=['POST'])
 @need_login
-@check_fields('year', 'month')
+@check_fields(('year', int), ('month', int))
 def get_user_events():
     content = request.json
     year, month = int(content['year']), int(content['month'])
@@ -82,7 +82,7 @@ def get_user_events():
 
 @bp_api.route('/events/create', methods=['POST'])
 @need_login
-@check_fields('event_name', 'event_time')
+@check_fields(('event_name', str), ('event_time', str))
 def get_create():
     content = request.json
     event_name, event_time = content['event_name'], content['event_time']
@@ -95,9 +95,9 @@ def get_create():
     })
 
 
-@bp_api.route('/events/modify', methods=['POST'])
+@bp_api.route('/events/update', methods=['POST'])
 @need_login
-@check_fields('event_id', 'update_fields')
+@check_fields(('event_id', str), ('update_fields', dict))
 def update_events():
     content = request.json
     event_id, update_fields = content['event_id'], content['update_fields']
@@ -116,7 +116,7 @@ def update_events():
 
 @bp_api.route('/events/delete', methods=['POST'])
 @need_login
-@check_fields('event_id')
+@check_fields(('event_id', str))
 def delete_event():
     content = request.json
     event_id = content['event_id']
