@@ -1,7 +1,8 @@
 from flask.blueprints import Blueprint
 from flask import session, g, request, Response
+from sqlalchemy import and_, extract
+from .database import db
 from .modules import User, Event, Tag
-from .database import search_user_by_id, search_user_by_email, insert_user, insert_event, get_events_of_user
 from .utils import need_login, error_msg, json_response, check_fields
 
 
@@ -15,7 +16,7 @@ def load_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = search_user_by_id(user_id)
+        g.user = User.query.filter_by(user_id=user_id).first()
 
 
 @bp_api.route('/users/login/', methods=['POST'])
@@ -24,7 +25,7 @@ def login():
     content = request.json
     email, password = content['email'], content['password']
     # input validation
-    user = search_user_by_email(email)
+    user = User.query.filter_by(email=email).first()
     if user is None:
         return error_msg(404, 'user not exist')
     if not user.verify(password):
@@ -42,10 +43,11 @@ def register():
     content = request.json
     email, password = content['email'], content['password']
     # check if exist same user
-    if search_user_by_email(email) is not None:
+    if User.query.filter_by(email=email).first() is not None:
         return error_msg(403, 'user already exist')
     user = User.create(email, password)
-    insert_user(user)
+    db.session.add(user)
+    db.session.commit()
     return json_response({
         'code': 201,
         'email': user.email
@@ -68,7 +70,10 @@ def logout():
 def get_user_events():
     content = request.json
     year, month = int(content['year']), int(content['month'])
-    events = get_events_of_user(g.user, year, month)
+    events = Event.query.with_parent(g.user).filter(and_(
+        extract('year', Event.event_time) == year,
+        extract('month', Event.event_time) == month,
+    )).all()
     return json_response({
         'code': 200,
         'events': [event.to_dict() for event in events]
@@ -82,7 +87,8 @@ def get_event():
     content = request.json
     event_name, event_time = content['event_name'], content['event_time']
     event = Event.create(event_name, event_time)
-    insert_event(g.user, event)
+    g.user.events.append(event)
+    db.session.commit()
     return json_response({
         'code': 201,
         'msg': f'{event_name} create successfully'
