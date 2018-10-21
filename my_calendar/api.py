@@ -97,10 +97,14 @@ def update_events():
         event_name = update_fields['event_name']
         if check_word(event_name):
             event.event_name = event_name
+        else:
+            return error_msg(403, 'event_name format is invalid')
     if 'event_time' in update_fields:
         event_time = update_fields['event_time']
         if check_datetime(event_time):
             event.event_time = event_time
+        else:
+            return error_msg(403, 'event_time format is invalid')
     db.session.commit()
     return result_success()
 
