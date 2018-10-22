@@ -1,6 +1,7 @@
 from flask.blueprints import Blueprint
 from flask import session, g, request, Response
 from sqlalchemy import and_, extract
+from dateutil import parser
 from .database import db
 from .modules import User, Event, Tag
 from .utils import (
@@ -23,7 +24,7 @@ def load_user():
         g.user = User.query.filter_by(user_id=user_id).first()
 
 
-@bp_api.route('/users/login/', methods=['POST'])
+@bp_api.route('/users/login', methods=['POST'])
 @check_fields(('email', str, check_email), ('password', str, check_word))
 def login():
     content = request.json
@@ -37,7 +38,7 @@ def login():
     return result_success()
 
 
-@bp_api.route('/users/register/', methods=['POST'])
+@bp_api.route('/users/register', methods=['POST'])
 @check_fields(('email', str, check_email), ('password', str, check_word))
 def register():
     content = request.json
@@ -52,7 +53,7 @@ def register():
 
 
 @bp_api.route('/users/logout', methods=['GET'])
-@need_login
+# @need_login
 def logout():
     session.clear()
     return result_success()
@@ -79,8 +80,8 @@ def get_user_events():
 @check_fields(('event_name', str, check_word), ('event_time', str, check_datetime))
 def get_create():
     content = request.json
-    event_name, event_time = content['event_name'], content['event_time']
-    event = Event.create(event_name, event_time)
+    event_name, event_time = content['event_name'], parser.parse(content['event_time'])
+    event = Event.create(event_name=event_name, event_time=event_time)
     g.user.events.append(event)
     db.session.commit()
     return result_create_success()

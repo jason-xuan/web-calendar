@@ -55,7 +55,7 @@ class Tag(db.Model):
 
     def to_dict(self):
         return {
-            'tag_id': self.tag_id,
+            'event_id': self.event_id,
             'tag_name': self.tag_name,
             'activated': self.activated
         }
