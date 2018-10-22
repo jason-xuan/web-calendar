@@ -41,6 +41,7 @@ class Event(db.Model):
             'owner': self.owner.email,
             'event_name': self.event_name,
             'event_time': str(self.event_time),
+            'tags': [tag.to_dict() for tag in self.tags]
         }
 
 
@@ -55,7 +56,7 @@ class Tag(db.Model):
 
     def to_dict(self):
         return {
-            'tag_id': self.tag_id,
+            'event_id': self.event_id,
             'tag_name': self.tag_name,
             'activated': self.activated
         }
