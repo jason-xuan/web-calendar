@@ -117,6 +117,27 @@ def delete_event():
     content = request.json
     event_id = content['event_id']
     event = Event.query.filter_by(event_id=event_id).first()
+    if event is None:
+        return error_msg(404, 'event not exist')
     db.session.delete(event)
     db.session.commit()
     return result_success()
+
+
+@bp_api.route('/tags/create', methods=['POST'])
+@need_login
+@check_fields(('event_id', str, check_word), ('tag_name', str, check_word))
+def create_tag():
+    content = request.json
+    event_id, tag_name = content['event_id'], content['tag_name']
+    event = Event.query.filter_by(event_id=event_id).first()
+    if event is None:
+        return error_msg(404, 'event not exist')
+    if 'activated' in content and type(content['activated']) is bool:
+        activated = content['activated']
+    else:
+        activated = False
+    tag = Tag(tag_name=tag_name, activated=activated)
+    event.tags.append(tag)
+    db.session.commit()
+    return result_create_success()

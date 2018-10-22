@@ -41,6 +41,7 @@ class Event(db.Model):
             'owner': self.owner.email,
             'event_name': self.event_name,
             'event_time': str(self.event_time),
+            'tags': [tag.to_dict() for tag in self.tags]
         }
 
 
