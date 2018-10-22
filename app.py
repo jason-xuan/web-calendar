@@ -1,19 +1,8 @@
-<<<<<<< HEAD
-from my_calendar import app
-from flask import Flask, render_template
-from datetime import timedelta
-app1 =Flask(__name__)
-
-
-if __name__ == '__main__':
-
-=======
 from my_calendar import create_app
 
 
 if __name__ == '__main__':
     app = create_app()
->>>>>>> 90c303a9546b9d11a1bd47711576280ce4fe219c
     app.run(debug=True)
 
 

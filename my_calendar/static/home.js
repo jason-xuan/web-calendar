@@ -15,8 +15,9 @@ function Calendar(month, year) {
 }
 cal = new Calendar();
 let loggedIn = false;
-function update () {
+function update (loggedIn) {
     clearCalendar();
+   
     document.getElementById('display_month').innerHTML = cal_months_labels[cal.month] + " " + cal.year;
     // get first day of month
     let firstDay = new Date(cal.year, cal.month, 1);
@@ -45,7 +46,8 @@ function update () {
             if (day <= monthLength && (i > 0 || j >= startingDay)) {
                 //html += day;
                 dateCell.appendChild(document.createTextNode(day.toString()));
-                dateCell.setAttribute("id",cal.year.toString() + "-" + (cal.month + 1).toString() + "-" + day.toString());
+                //2018-08-09
+                dateCell.setAttribute("id",cal.year.toString() + "-" + caseChange(cal.month + 1) +"-" +  caseChange(day));
                 dateCell.setAttribute("class", "editable");
                 weekRow.appendChild(dateCell);
                 day++;
@@ -60,6 +62,17 @@ function update () {
         if (day > monthLength) {
             break;
         }
+        
+    }
+    if(loggedIn) {
+        getEvent(cal.month, cal.year);
+    }
+}
+function caseChange(a) {
+    if(a < 10) {
+        return "0" + a.toString();
+    } else {
+        return a.toString();
     }
 }
 function clearCalendar() {
@@ -74,25 +87,25 @@ $(document).on("click", ".editable", function() {
         
     });
 
-document.getElementById("next_month").addEventListener("click", function(){
+document.getElementById("next_month").addEventListener("click", function(loggedIn){
     if(cal.month == 11) {
         cal.month = 0;
         cal.year = cal.year + 1;
     } else {
         cal.month = cal.month + 1;
     }
-    update();
+    update(loggedIn);
 
 }, false);
 // Change motn when the prev button is pressed
-document.getElementById("prev_month").addEventListener("click", function(){
+document.getElementById("prev_month").addEventListener("click", function(loggedIn){
     if(cal.month == 0) {
         cal.month = 11;
         cal.year = cal.year - 1;
     } else {
         cal.month = cal.month - 1;
     }
-    update();
+    update(loggedIn);
 
 }, false);
 update();
