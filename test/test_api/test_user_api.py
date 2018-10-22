@@ -8,14 +8,6 @@ from my_calendar.database import db
 from my_calendar.modules import User, Event, Tag
 
 
-# @contextmanager
-# def user_set(app, user):
-#     def handler(sender, **kwargs):
-#         g.user = user
-#     with appcontext_pushed.connected_to(handler, app):
-#         yield
-
-
 class TestUserApi(TestCase):
     SQLALCHEMY_DATABASE_URI = "sqlite:///db_for_test.db"
     TESTING = True
@@ -28,6 +20,10 @@ class TestUserApi(TestCase):
         db.create_all()
 
         self.success = {'code': 200}
+        self.success_create = {'code': 201}
+        self.not_json = {'code': 403, 'error': 'post type must be json'}
+        self.field_not_complete = {'code': 403, 'error': 'fields not complete'}
+        self.wrong_email = {'code': 403, 'error': "format check of email failed: got today's dinner"}
 
         user = User.create('xua@wustl.edu', 'strong_password')
         self.user_id = user.user_id
@@ -63,3 +59,46 @@ class TestUserApi(TestCase):
             # logout check
             self.assertFalse('user_id' in session)
 
+    def test_register(self):
+        self.assertEqual(len(User.query.all()), 1)
+        with self.app.test_client() as client:
+            response = client.post('/api/users/register', json={
+                'email': 'jason@wustl.edu', 'password': 'strong_password'
+            })
+            self.assertEqual(response.json, self.success_create)
+            self.assertEqual(len(User.query.all()), 2)
+            user = User.query.filter_by(email='jason@wustl.edu').first()
+            self.assertTrue(user.verify('strong_password'))
+
+    def test_without_email(self):
+        response = self.client.post('/api/users/register', json={
+            'password': 'strong_password'
+        })
+        self.assertEqual(response.json, self.field_not_complete)
+
+        response = self.client.post('/api/users/login', json={
+            'password': 'strong_password'
+        })
+        self.assertEqual(response.json, self.field_not_complete)
+
+    def test_without_password(self):
+        response = self.client.post('/api/users/register', json={
+            'email': 'jason@wustl.edu'
+        })
+        self.assertEqual(response.json, self.field_not_complete)
+
+        response = self.client.post('/api/users/login', json={
+            'email': 'jason@wustl.edu'
+        })
+        self.assertEqual(response.json, self.field_not_complete)
+
+    def test_wrong_email_type(self):
+        response = self.client.post('/api/users/register', json={
+            'email': "today's dinner", 'password': 'strong_password'
+        })
+        self.assertEqual(response.json, self.wrong_email)
+
+        response = self.client.post('/api/users/login', json={
+            'email': "today's dinner", 'password': 'strong_password'
+        })
+        self.assertEqual(response.json, self.wrong_email)
