@@ -9,21 +9,26 @@ function getEvent(month, year) {
             console.log(res.events.length)
             let event_other = document.createElement("p");
             for (let i = 0; i < res.events.length; i++) {
-                //if(i < 2) {
                 let event_div = document.createElement("div");
                 event_div.appendChild(document.createTextNode(res.events[i].event_time));
                 event_div.appendChild(document.createTextNode(res.events[i].event_name));
                 event_div.setAttribute("class", "event");
                 event_div.setAttribute("id", res.events[i].event_id);
+                //render a event by using this edit button
+                let event_edit = document.createElement("a");
+                event_edit.appendChild(document.createTextNode("edit"));
+                event_edit.setAttribute("type", "button");
+                event_edit.addEventListener("click", function() {
+                    renderEvent(res.events[i].event_id, res.events[i].event_time, res.events[i].event_name);
+
+                    //console.log("event" + res.events[i].json);
+                    alert("edit!!!");
+                })
+                //event_edit.addEventListener("click", renderEvent(res.events[i].event_id, res.events[i].event_time, res.events[i].event_name))
+
+                event_div.appendChild(event_edit);
                 let res_day = res.events[i].event_time.substring(0, 10);
                 document.getElementById(res_day).appendChild(event_div);
-                // }
-                /* else {
-                  let res_day = res.events[i].event_time.substring(0,10);
-                  event_other.appendChild(document.createTextNode((res.events.length - 2).toString() + "other events"));
-                  event_other.setAttribute("id", res_day + "other");
-                  document.getElementById(res_day).appendChild(event_other);
-                } */
             }
 
         })
@@ -49,7 +54,7 @@ function createEvent() {
         
         .then(function(res) {
             console.log(res["msg"]);
-            if (res["msg"] == title + " create successfully") {
+            if (res["code"] == 201) {
                 
 				//alert("hi");
 				//already sign in
@@ -60,6 +65,21 @@ function createEvent() {
         .catch(error => console.error('Error:', error));
 }
 document.getElementById("save_btn").addEventListener("click", createEvent);
+
+function renderEvent(event_id, time, event) {
+    /* console.log("time:" + time);
+    console.log("event:" + event);
+    console.log("id:" + event_id); */
+    if(event != null) {
+        document.getElementById("title").value = event;
+    } 
+    if(time != null) {
+        document.getElementById("time").value = time.substring(11,16);
+    }
+    if(event_id != null) {
+        document.getElementById("id").value = event_id;
+    } 
+}
 function deleteEvent(day) {
 
 }

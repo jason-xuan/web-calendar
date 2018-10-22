@@ -87,7 +87,7 @@ $(document).on("click", ".editable", function() {
         
     });
 
-document.getElementById("next_month").addEventListener("click", function(loggedIn){
+document.getElementById("next_month").addEventListener("click", function(){
     if(cal.month == 11) {
         cal.month = 0;
         cal.year = cal.year + 1;
@@ -98,7 +98,7 @@ document.getElementById("next_month").addEventListener("click", function(loggedI
 
 }, false);
 // Change motn when the prev button is pressed
-document.getElementById("prev_month").addEventListener("click", function(loggedIn){
+document.getElementById("prev_month").addEventListener("click", function(){
     if(cal.month == 0) {
         cal.month = 11;
         cal.year = cal.year - 1;
@@ -108,4 +108,4 @@ document.getElementById("prev_month").addEventListener("click", function(loggedI
     update(loggedIn);
 
 }, false);
-update();
+update(loggedIn);

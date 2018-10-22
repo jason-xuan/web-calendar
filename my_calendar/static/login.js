@@ -3,7 +3,7 @@ function login() {
 
 	let password = $("#login_password").val();
 
-	fetch('/api/users/login/', {
+	fetch('/api/users/login', {
 		method: "POST",
 		body: JSON.stringify({ email: email, password: password }),
 		headers: { "Content-Type": "application/json; charset=utf-8" }
@@ -11,7 +11,7 @@ function login() {
 		.then(res => res.json())
 		.then(function (response) {
 			alert(JSON.stringify(response));
-			if (response["msg"] == "successfully login") {
+			if (response["code"] == 200) {
 				//alert("hi");
 				//already sign in
 				loggedIn = true;
@@ -26,7 +26,7 @@ $("#login_btn").click(login);
 function register() {
 	let email = $("#register_email").val();
 	let password = $("#register_password").val();
-	fetch('/api/users/register/', {
+	fetch('/api/users/register', {
 		method: "POST",
 		body: JSON.stringify({ email: email, password: password }),
 		headers: { "Content-Type": "application/json; charset=utf-8", }
