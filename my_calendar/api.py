@@ -141,3 +141,44 @@ def create_tag():
     event.tags.append(tag)
     db.session.commit()
     return result_create_success()
+
+
+@bp_api.route('/tags/event', methods=['POST'])
+@need_login
+@check_fields(('event_id', str, check_word))
+def get_tags():
+    content = request.json
+    event_id = content['event_id']
+    event = Event.query.filter_by(event_id=event_id).first()
+    if event is None:
+        return error_msg(404, 'event not exist')
+    return json_response({
+        'code': 200,
+        'tags': [tag.to_dict() for tag in event.tags]
+    })
+
+
+@bp_api.route('/tags/update', methods=['POST'])
+@need_login
+@check_fields(('event_id', str, check_word), ('tag_name', str, check_word), ('activated', bool, lambda x: True))
+def update_tag():
+    content = request.json
+    event_id, tag_name, activated = content['event_id'], content['tag_name'], content['activated']
+    event = Event.query.filter_by(event_id=event_id).first()
+    tag = Tag.query.with_parent(event).filter_by(tag_name=tag_name).first()
+    tag.activated = activated
+    db.session.commit()
+    return result_success()
+
+
+@bp_api.route('/tags/delete', methods=['POST'])
+@need_login
+@check_fields(('event_id', str, check_word), ('tag_name', str, check_word))
+def delete_tag():
+    content = request.json
+    event_id, tag_name = content['event_id'], content['tag_name']
+    event = Event.query.filter_by(event_id=event_id).first()
+    tag = Tag.query.with_parent(event).filter_by(tag_name=tag_name).first()
+    db.session.delete(tag)
+    db.session.commit()
+    return result_success()
