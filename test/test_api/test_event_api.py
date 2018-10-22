@@ -43,14 +43,14 @@ class TestUserApi(TestCase):
     def test_create_event(self):
         self.login()
         user = User.query.filter_by(user_id=self.user_id).first()
-        self.assertEqual(len(Event.query.with_parent(user).all()), 1)
+        self.assertEqual(len(Event.query.with_parent(user).all()), 0)
         response = self.client.post('/api/events/create', json={
             'event_name': "having dinner",
             'event_time': str(datetime.now())
         })
         self.assertEqual(response.json, self.success_create)
         user = User.query.filter_by(user_id=self.user_id).first()
-        self.assertEqual(len(Event.query.with_parent(user).all()), 2)
+        self.assertEqual(len(Event.query.with_parent(user).all()), 1)
 
     def test_get_events(self):
         self.login()
@@ -85,11 +85,12 @@ class TestUserApi(TestCase):
             Event.create('dinner', datetime(2018, 6, 8, 18, 30, 0)),
         ]
         event_id = user.events[0].event_id
-        self.assertEqual(len(Event.query.with_parent(user).all()), 3)
+        self.assertEqual(len(Event.query.with_parent(user).all()), 4)
         db.session.commit()
 
-        response = self.client.post('/api/events/create', json={
+        response = self.client.post('/api/events/delete', json={
             'event_id': event_id
         })
+        user = User.query.filter_by(user_id=self.user_id).first()
         self.assertEqual(response.json, self.success)
         self.assertEqual(len(Event.query.with_parent(user).all()), 3)

@@ -112,7 +112,7 @@ def update_events():
 
 @bp_api.route('/events/delete', methods=['POST'])
 @need_login
-@check_fields(('event_id', str))
+@check_fields(('event_id', str, check_word))
 def delete_event():
     content = request.json
     event_id = content['event_id']
