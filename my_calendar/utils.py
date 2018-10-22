@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import g, Response, request
+from flask import g, Response, request, session
 from uuid import uuid4
 from datetime import datetime
 from dateutil import parser
@@ -79,21 +79,35 @@ def need_login(func):
     return return_func
 
 
+def need_csrf(func):
+    @wraps(func)
+    def return_func(*args, **kwargs):
+        json_content = request.json
+        if json_content is None:
+            return error_msg(400, 'post type must be json')
+        if 'csrf_token' not in json_content:
+            return error_msg(400, 'needs csrf token')
+        if json_content['csrf_token'] != session['csrf_token']:
+            return error_msg(400, 'wrong csrf token')
+        return func(*args, **kwargs)
+    return return_func
+
+
 def check_fields(*fields):
     def actual_decorator(func):
         @wraps(func)
         def wrapper_check_fields(*args, **kwargs):
             json_content = request.json
             if json_content is None:
-                return error_msg(403, 'post type must be json')
+                return error_msg(400, 'post type must be json')
             for (field, field_type, check_function) in fields:
                 if field not in json_content:
-                    return error_msg(403, 'fields not complete')
+                    return error_msg(400, 'fields not complete')
                 value = json_content[field]
                 if type(value) is not field_type:
-                    return error_msg(403, f'error type of {field}: expect {field_type} but get {type(field)}')
+                    return error_msg(400, f'error type of {field}: expect {field_type} but get {type(field)}')
                 if not check_function(value):
-                    return error_msg(403, f'format check of {field} failed: got {value}')
+                    return error_msg(400, f'format check of {field} failed: got {value}')
             return func(*args, **kwargs)
         return wrapper_check_fields
     return actual_decorator
