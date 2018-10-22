@@ -3,6 +3,7 @@ from flask_testing import TestCase
 from contextlib import contextmanager
 from flask import appcontext_pushed, g
 from datetime import datetime
+from dateutil import parser
 from my_calendar import create_app
 from my_calendar.database import db
 from my_calendar.modules import User, Event, Tag
@@ -72,8 +73,60 @@ class TestUserApi(TestCase):
         })
         self.assertEqual(len(response.json['events']), 3)
 
-    def test_modify_event(self):
+    def test_modify_event_name(self):
         self.login()
+        user = User.query.filter_by(user_id=self.user_id).first()
+        event = Event.create('dinner', datetime(2018, 6, 5, 18, 30, 0))
+        event_id = event.event_id
+        user.events.append(event)
+        db.session.commit()
+        response = self.client.post('/api/events/update', json={
+            'event_id': event_id,
+            'update_fields': {
+                'event_name': 'lunch'
+            }
+        })
+        self.assertEqual(response.json, self.success)
+        event = Event.query.filter_by(event_id=event_id).first()
+        self.assertEqual(event.event_name, 'lunch')
+
+    def test_modify_event_time(self):
+        self.login()
+        user = User.query.filter_by(user_id=self.user_id).first()
+        event = Event.create('dinner', datetime(2018, 6, 5, 18, 30, 0))
+        event_id = event.event_id
+        user.events.append(event)
+        db.session.commit()
+        now = datetime.now()
+        response = self.client.post('/api/events/update', json={
+            'event_id': event_id,
+            'update_fields': {
+                'event_time': str(now)
+            }
+        })
+        self.assertEqual(response.json, self.success)
+        event = Event.query.filter_by(event_id=event_id).first()
+        self.assertEqual(event.event_time, now)
+
+    def test_modify_event_name_and_time(self):
+        self.login()
+        user = User.query.filter_by(user_id=self.user_id).first()
+        event = Event.create('dinner', datetime(2018, 6, 5, 18, 30, 0))
+        event_id = event.event_id
+        user.events.append(event)
+        db.session.commit()
+        now = datetime.now()
+        response = self.client.post('/api/events/update', json={
+            'event_id': event_id,
+            'update_fields': {
+                'event_name': 'lunch',
+                'event_time': str(now)
+            }
+        })
+        self.assertEqual(response.json, self.success)
+        event = Event.query.filter_by(event_id=event_id).first()
+        self.assertEqual(event.event_time, now)
+        self.assertEqual(event.event_name, 'lunch')
 
     def test_delete_event(self):
         self.login()

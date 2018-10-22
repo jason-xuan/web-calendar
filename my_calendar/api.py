@@ -103,7 +103,7 @@ def update_events():
     if 'event_time' in update_fields:
         event_time = update_fields['event_time']
         if check_datetime(event_time):
-            event.event_time = event_time
+            event.event_time = parser.parse(event_time)
         else:
             return error_msg(403, 'event_time format is invalid')
     db.session.commit()
