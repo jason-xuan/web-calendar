@@ -111,7 +111,7 @@ def check_fields(*fields):
                     return error_msg(400, 'fields not complete')
                 value = json_content[field]
                 if type(value) is not field_type:
-                    return error_msg(400, f'error type of {field}: expect {field_type} but get {type(field)}')
+                    return error_msg(400, f'error type of {field}: expect {field_type} but get {type(value)}')
                 if not check_function(value):
                     return error_msg(400, f'format check of {field} failed: got {value}')
             return func(*args, **kwargs)
