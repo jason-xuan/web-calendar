@@ -53,3 +53,17 @@ class TestTag(TestCase):
         self.assertEqual(tags[0].event_id, self.event_id)
         self.assertEqual(tags[0].tag_name, 'important')
 
+    def test_delete_cascade(self):
+        user = User.query.filter_by(user_id=self.user_id).first()
+        event = Event.query.with_parent(user).filter_by(event_id=self.event_id).first()
+        event.tags.append(Tag(tag_name='important', activated=False))
+        event.tags.append(Tag(tag_name='personal', activated=False))
+        db.session.commit()
+        # print(Tag.query.with_parent(event).all())
+        self.assertEqual(len(Tag.query.all()), 2)
+
+        user = User.query.filter_by(user_id=self.user_id).first()
+        event = Event.query.with_parent(user).filter_by(event_id=self.event_id).first()
+        db.session.delete(event)
+        db.session.commit()
+        self.assertEqual(len(Tag.query.all()), 0)

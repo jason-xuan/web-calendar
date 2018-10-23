@@ -27,7 +27,7 @@ class Event(db.Model):
     event_name = db.Column(db.String(100))
     event_time = db.Column(db.DateTime)
     owner_id = db.Column(db.String(32), db.ForeignKey('user.user_id'), nullable=False)
-    tags = db.relationship('Tag', backref='event', lazy=False)
+    tags = db.relationship('Tag', backref='event', lazy=False, cascade='all,delete')
 
     @staticmethod
     def create(event_name: str, event_time: datetime):
@@ -54,7 +54,6 @@ class Tag(db.Model):
         PrimaryKeyConstraint('event_id', 'tag_name', name='tag'),
     )
 
-    @staticmethod
     def __repr__(self):
         return f'{self.tag_name}:{"activated" if self.activated else "not activated"}'
 
