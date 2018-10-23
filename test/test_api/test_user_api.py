@@ -1,11 +1,8 @@
 from flask import session
 from flask_testing import TestCase
-from contextlib import contextmanager
-from flask import appcontext_pushed, g
-from datetime import datetime
 from my_calendar import create_app
 from my_calendar.database import db
-from my_calendar.modules import User, Event, Tag
+from my_calendar.modules import User
 
 
 class TestUserApi(TestCase):
@@ -24,6 +21,8 @@ class TestUserApi(TestCase):
         self.not_json = {'code': 400, 'error': 'post type must be json'}
         self.field_not_complete = {'code': 400, 'error': 'fields not complete'}
         self.wrong_email = {'code': 400, 'error': "format check of email failed: got today's dinner"}
+        self.error_need_csrf = {'code': 400, 'error': 'needs csrf token'}
+        self.error_wrong_csrf = {'code': 400, 'error': 'wrong csrf token'}
 
         user = User.create('xua@wustl.edu', 'strong_password')
         self.user_id = user.user_id
@@ -156,16 +155,16 @@ class TestUserApi(TestCase):
                 'password': 'strong_password',
                 # 'csrf_token': self.csrf_token
             })
-            self.assertEqual(response.json, {'code': 400, 'error': 'needs csrf token'})
+            self.assertEqual(response.json, self.error_need_csrf)
             self.assertEqual(len(User.query.all()), 1)
             self.assertIsNone(User.query.filter_by(email='jason@wustl.edu').first())
 
-        response = client.post('/api/users/login', json={
-            'email': "today's dinner",
-            'password': 'strong_password',
-            # 'csrf_token': self.csrf_token
-        })
-        self.assertEqual(response.json, {'code': 400, 'error': 'needs csrf token'})
+            response = client.post('/api/users/login', json={
+                'email': "today's dinner",
+                'password': 'strong_password',
+                # 'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, self.error_need_csrf)
 
     def test_wrong_csrf(self):
         self.assertEqual(len(User.query.all()), 1)
@@ -178,13 +177,13 @@ class TestUserApi(TestCase):
                 'password': 'strong_password',
                 'csrf_token': 'not csrf'
             })
-            self.assertEqual(response.json, {'code': 400, 'error': 'wrong csrf token'})
+            self.assertEqual(response.json, self.error_wrong_csrf)
             self.assertEqual(len(User.query.all()), 1)
             self.assertIsNone(User.query.filter_by(email='jason@wustl.edu').first())
 
-        response = client.post('/api/users/login', json={
-            'email': "today's dinner",
-            'password': 'strong_password',
-            'csrf_token': 'not csrf'
-        })
-        self.assertEqual(response.json, {'code': 400, 'error': 'wrong csrf token'})
+            response = client.post('/api/users/login', json={
+                'email': "today's dinner",
+                'password': 'strong_password',
+                'csrf_token': 'not csrf'
+            })
+            self.assertEqual(response.json, self.error_wrong_csrf)
