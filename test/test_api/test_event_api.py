@@ -1,7 +1,5 @@
 from flask import session
 from flask_testing import TestCase
-from contextlib import contextmanager
-from flask import appcontext_pushed, g
 from datetime import datetime
 from dateutil import parser
 from my_calendar import create_app
@@ -29,7 +27,7 @@ class TestUserApi(TestCase):
         self.error_wrong_csrf = {'code': 400, 'error': 'wrong csrf token'}
 
         user = User.create('xua@wustl.edu', 'strong_password')
-        another_user = User.create('xua@wustl.edu', 'strong_password')
+        another_user = User.create('jason@wustl.edu', 'strong_password')
         event = Event.create('dinner', datetime.now())
         another_event = Event.create('lunch', datetime.now())
         self.user_id = user.user_id
@@ -37,6 +35,7 @@ class TestUserApi(TestCase):
         self.another_user_id = another_user.user_id
         self.another_event_id = another_event.event_id
         db.session.add(user)
+        db.session.add(another_user)
         db.session.commit()
 
     def tearDown(self):
@@ -205,11 +204,17 @@ class TestUserApi(TestCase):
                 Event.create('dinner', datetime(2018, 6, 6, 18, 30, 0)),
                 Event.create('dinner', datetime(2018, 6, 7, 18, 30, 0)),
                 Event.create('dinner', datetime(2018, 6, 8, 18, 30, 0)),
-                Event.create('dinner', datetime(2018, 8, 5, 18, 30, 0)),
+
                 Event.create('dinner', datetime(2018, 7, 6, 18, 30, 0)),
                 Event.create('dinner', datetime(2018, 7, 7, 18, 30, 0)),
                 Event.create('dinner', datetime(2018, 7, 8, 18, 30, 0))
             ]
+            event = Event.create('dinner', datetime(2018, 8, 5, 18, 30, 0))
+            event.tags = [
+                Tag(tag_name='important', activated=True),
+                Tag(tag_name='finished', activated=False)
+            ]
+            user.events.append(event)
             db.session.commit()
             response = client.post('/api/events/user', json={
                 'year': 2018,
@@ -217,6 +222,17 @@ class TestUserApi(TestCase):
                 'csrf_token': self.csrf_token
             })
             self.assertEqual(len(response.json['events']), 3)
+            response = client.post('/api/events/user', json={
+                'year': 2018,
+                'month': 8,
+                'csrf_token': self.csrf_token
+            })
+            self.assertEqual(len(response.json['events']), 1)
+            tags = [
+                {'tag_name': 'finished', 'activated': False},
+                {'tag_name': 'important', 'activated': True},
+            ]
+            self.assertEqual(response.json['events'][0]['tags'], tags)
 
     def test_modify_event_name(self):
         with self.app.test_client() as client:
