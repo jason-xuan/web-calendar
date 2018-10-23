@@ -28,12 +28,14 @@ class TestUserApi(TestCase):
 
         user = User.create('xua@wustl.edu', 'strong_password')
         another_user = User.create('jason@wustl.edu', 'strong_password')
-        event = Event.create('dinner', datetime.now())
-        another_event = Event.create('lunch', datetime.now())
+        event = Event.create('dinner', datetime(2017, 7, 7, 18, 30, 0))
+        another_event = Event.create('lunch', datetime(2017, 7, 7, 18, 30, 0))
         self.user_id = user.user_id
         self.event_id = event.event_id
         self.another_user_id = another_user.user_id
         self.another_event_id = another_event.event_id
+        user.events.append(event)
+        another_user.events.append(another_event)
         db.session.add(user)
         db.session.add(another_user)
         db.session.commit()
@@ -58,7 +60,7 @@ class TestUserApi(TestCase):
             self.login(client)
 
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
             response = client.post('/api/events/create', json={
                 'event_name': "having dinner",
                 'event_time': str(datetime.now()),
@@ -66,14 +68,14 @@ class TestUserApi(TestCase):
             })
             self.assertEqual(response.json, self.success_create)
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 2)
 
     def test_create_missing_field(self):
         with self.app.test_client() as client:
             self.login(client)
 
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
             response = client.post('/api/events/create', json={
                 # 'event_name': "having dinner",
                 'event_time': str(datetime.now()),
@@ -81,7 +83,7 @@ class TestUserApi(TestCase):
             })
             self.assertEqual(response.json, self.field_not_complete)
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
 
             response = client.post('/api/events/create', json={
                 'event_name': "having dinner",
@@ -90,14 +92,14 @@ class TestUserApi(TestCase):
             })
             self.assertEqual(response.json, self.field_not_complete)
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
 
     def test_create_invalid_value_type(self):
         with self.app.test_client() as client:
             self.login(client)
 
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
             response = client.post('/api/events/create', json={
                 'event_name': 1235,
                 'event_time': str(datetime.now()),
@@ -108,7 +110,7 @@ class TestUserApi(TestCase):
                 'error': "error type of event_name: expect <class 'str'> but get <class 'int'>"
             })
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
 
             response = client.post('/api/events/create', json={
                 'event_name': "having dinner",
@@ -120,7 +122,7 @@ class TestUserApi(TestCase):
                 'error': "error type of event_time: expect <class 'str'> but get <class 'int'>"
             })
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
 
     def test_create_without_login(self):
         with self.app.test_client() as client:
@@ -128,7 +130,7 @@ class TestUserApi(TestCase):
             self.csrf_token = session['csrf_token']
 
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
             response = client.post('/api/events/create', json={
                 'event_name': "having dinner",
                 'event_time': str(datetime.now()),
@@ -136,14 +138,14 @@ class TestUserApi(TestCase):
             })
             self.assertEqual(response.json, self.error_need_login)
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
 
     def test_create_without_csrf(self):
         with self.app.test_client() as client:
             self.login(client)
 
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
             response = client.post('/api/events/create', json={
                 'event_name': "having dinner",
                 'event_time': str(datetime.now()),
@@ -151,12 +153,12 @@ class TestUserApi(TestCase):
             })
             self.assertEqual(response.json, self.error_need_csrf)
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
 
             # csrf check is before the field check
             # so it will return need csrf error
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
             response = client.post('/api/events/create', json={
                 'event_name': "having dinner",
                 # 'event_time': str(datetime.now()),
@@ -164,14 +166,14 @@ class TestUserApi(TestCase):
             })
             self.assertEqual(response.json, self.error_need_csrf)
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
 
     def test_create_wrong_csrf(self):
         with self.app.test_client() as client:
             self.login(client)
 
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
             response = client.post('/api/events/create', json={
                 'event_name': "having dinner",
                 'event_time': str(datetime.now()),
@@ -179,12 +181,12 @@ class TestUserApi(TestCase):
             })
             self.assertEqual(response.json, self.error_wrong_csrf)
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
 
             # csrf check is before the field check
             # so it will return wrong csrf error
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
             response = client.post('/api/events/create', json={
                 'event_name': "having dinner",
                 # 'event_time': str(datetime.now()),
@@ -192,30 +194,35 @@ class TestUserApi(TestCase):
             })
             self.assertEqual(response.json, self.error_wrong_csrf)
             user = User.query.filter_by(user_id=self.user_id).first()
-            self.assertEqual(len(Event.query.with_parent(user).all()), 0)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 1)
 
     def test_get_events(self):
         with self.app.test_client() as client:
             self.login(client)
 
             user = User.query.filter_by(user_id=self.user_id).first()
-            user.events = [
+            user.events += [
                 Event.create('dinner', datetime(2018, 6, 5, 18, 30, 0)),
                 Event.create('dinner', datetime(2018, 6, 6, 18, 30, 0)),
                 Event.create('dinner', datetime(2018, 6, 7, 18, 30, 0)),
                 Event.create('dinner', datetime(2018, 6, 8, 18, 30, 0)),
-
                 Event.create('dinner', datetime(2018, 7, 6, 18, 30, 0)),
                 Event.create('dinner', datetime(2018, 7, 7, 18, 30, 0)),
                 Event.create('dinner', datetime(2018, 7, 8, 18, 30, 0))
             ]
+            db.session.commit()
             event = Event.create('dinner', datetime(2018, 8, 5, 18, 30, 0))
+            event_id = event.event_id
+
+            user = User.query.filter_by(user_id=self.user_id).first()
+            user.events += [event]
+            event = Event.query.filter_by(event_id=event_id).first()
             event.tags = [
                 Tag(tag_name='important', activated=True),
                 Tag(tag_name='finished', activated=False)
             ]
-            user.events.append(event)
             db.session.commit()
+
             response = client.post('/api/events/user', json={
                 'year': 2018,
                 'month': 7,
@@ -233,6 +240,80 @@ class TestUserApi(TestCase):
                 {'tag_name': 'important', 'activated': True},
             ]
             self.assertEqual(response.json['events'][0]['tags'], tags)
+
+    def test_get_missing_field(self):
+        with self.app.test_client() as client:
+            self.login(client)
+
+            response = client.post('/api/events/user', json={
+                # 'year': 2017,
+                'month': 7,
+                'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, self.field_not_complete)
+
+            response = client.post('/api/events/user', json={
+                'year': 2017,
+                # 'month': 7,
+                'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, self.field_not_complete)
+
+    def test_get_invalid_value_type(self):
+        with self.app.test_client() as client:
+            self.login(client)
+
+            response = client.post('/api/events/user', json={
+                'year': '2017',
+                'month': 7,
+                'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, {
+                'code': 400,
+                'error': "error type of year: expect <class 'int'> but get <class 'str'>"
+            })
+
+            response = client.post('/api/events/user', json={
+                'year': 2017,
+                'month': '7',
+                'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, {
+                'code': 400,
+                'error': "error type of month: expect <class 'int'> but get <class 'str'>"
+            })
+
+    def test_get_without_login(self):
+        with self.app.test_client() as client:
+            client.get('/')
+            self.csrf_token = session['csrf_token']
+
+            response = client.post('/api/events/user', json={
+                'year': 2018,
+                'month': 7,
+                'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, self.error_need_login)
+
+    def test_without_csrf(self):
+        with self.app.test_client() as client:
+            self.login(client)
+            response = client.post('/api/events/user', json={
+                'year': 2018,
+                'month': 7,
+                # 'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, self.error_need_csrf)
+
+    def test_wrong_csrf(self):
+        with self.app.test_client() as client:
+            self.login(client)
+            response = client.post('/api/events/user', json={
+                'year': 2018,
+                'month': 7,
+                'csrf_token': 'not csrf token'
+            })
+            self.assertEqual(response.json, self.error_wrong_csrf)
 
     def test_modify_event_name(self):
         with self.app.test_client() as client:
@@ -303,14 +384,14 @@ class TestUserApi(TestCase):
             self.login(client)
 
             user = User.query.filter_by(user_id=self.user_id).first()
-            user.events = [
+            user.events += [
                 Event.create('dinner', datetime(2018, 6, 5, 18, 30, 0)),
                 Event.create('dinner', datetime(2018, 6, 6, 18, 30, 0)),
                 Event.create('dinner', datetime(2018, 6, 7, 18, 30, 0)),
                 Event.create('dinner', datetime(2018, 6, 8, 18, 30, 0)),
             ]
             event_id = user.events[0].event_id
-            self.assertEqual(len(Event.query.with_parent(user).all()), 4)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 5)
             db.session.commit()
 
             response = client.post('/api/events/delete', json={
@@ -319,4 +400,4 @@ class TestUserApi(TestCase):
             })
             user = User.query.filter_by(user_id=self.user_id).first()
             self.assertEqual(response.json, self.success)
-            self.assertEqual(len(Event.query.with_parent(user).all()), 3)
+            self.assertEqual(len(Event.query.with_parent(user).all()), 4)
