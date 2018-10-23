@@ -44,8 +44,8 @@ def login():
     return result_success()
 
 
-@need_csrf
 @bp_api.route('/users/register', methods=['POST'])
+@need_csrf
 @check_fields(('email', str, check_email), ('password', str, check_word))
 def register():
     content = request.json
@@ -66,8 +66,8 @@ def logout():
     return result_success()
 
 
-@need_csrf
 @bp_api.route('/events/user', methods=['POST'])
+@need_csrf
 @need_login
 @check_fields(('year', int, lambda y: True), ('month', int, lambda m: 0 <= m <= 11))
 def get_user_events():
@@ -83,8 +83,8 @@ def get_user_events():
     })
 
 
-@need_csrf
 @bp_api.route('/events/create', methods=['POST'])
+@need_csrf
 @need_login
 @check_fields(('event_name', str, check_word), ('event_time', str, check_datetime))
 def get_create():
@@ -96,8 +96,8 @@ def get_create():
     return result_create_success()
 
 
-@need_csrf
 @bp_api.route('/events/update', methods=['POST'])
+@need_csrf
 @need_login
 @check_fields(('event_id', str, check_word), ('update_fields', dict, check_exist_fields('event_name', 'event_time')))
 def update_events():
@@ -120,8 +120,8 @@ def update_events():
     return result_success()
 
 
-@need_csrf
 @bp_api.route('/events/delete', methods=['POST'])
+@need_csrf
 @need_login
 @check_fields(('event_id', str, check_word))
 def delete_event():
