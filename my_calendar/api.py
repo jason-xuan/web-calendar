@@ -143,6 +143,8 @@ def create_tag():
         activated = content['activated']
     else:
         activated = False
+    if Tag.query.with_parent(event).filter_by(tag_name=tag_name).first() is not None:
+        return error_msg(400, 'tag already exist')
     tag = Tag(tag_name=tag_name, activated=activated)
     event.tags.append(tag)
     db.session.commit()

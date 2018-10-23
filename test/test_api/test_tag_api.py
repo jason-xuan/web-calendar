@@ -25,6 +25,7 @@ class TestUserApi(TestCase):
         self.not_json = {'code': 403, 'error': 'post type must be json'}
         self.field_not_complete = {'code': 403, 'error': 'fields not complete'}
         self.wrong_email = {'code': 403, 'error': "format check of email failed: got today's dinner"}
+        self.error_tag_exist = {'code': 400, 'error': 'tag already exist'}
 
         user = User.create('xua@wustl.edu', 'strong_password')
         event = Event.create('dinner', datetime.now())
@@ -60,6 +61,35 @@ class TestUserApi(TestCase):
             'csrf_token': self.csrf_token
         })
         self.assertEqual(response.json, self.success_create)
+        event = Event.query.filter_by(event_id=self.event_id).first()
+        self.assertEqual(len(Tag.query.with_parent(event).all()), 1)
+        response = self.client.post('/api/tags/create', json={
+            'event_id': self.event_id,
+            'tag_name': 'driving',
+            'csrf_token': self.csrf_token
+        })
+        self.assertEqual(response.json, self.success_create)
+        event = Event.query.filter_by(event_id=self.event_id).first()
+        self.assertEqual(len(Tag.query.with_parent(event).all()), 2)
+
+    def test_create_duplicate_tag(self):
+        self.login()
+        event = Event.query.filter_by(event_id=self.event_id).first()
+        self.assertEqual(len(Tag.query.with_parent(event).all()), 0)
+        response = self.client.post('/api/tags/create', json={
+            'event_id': self.event_id,
+            'tag_name': 'important',
+            'csrf_token': self.csrf_token
+        })
+        self.assertEqual(response.json, self.success_create)
+        event = Event.query.filter_by(event_id=self.event_id).first()
+        self.assertEqual(len(Tag.query.with_parent(event).all()), 1)
+        response = self.client.post('/api/tags/create', json={
+            'event_id': self.event_id,
+            'tag_name': 'important',
+            'csrf_token': self.csrf_token
+        })
+        self.assertEqual(response.json, self.error_tag_exist)
         event = Event.query.filter_by(event_id=self.event_id).first()
         self.assertEqual(len(Tag.query.with_parent(event).all()), 1)
 
