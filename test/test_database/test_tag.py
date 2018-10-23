@@ -17,11 +17,17 @@ class TestTag(TestCase):
         db.create_all()
 
         user = User.create('xua@wustl.edu', 'strong_password')
+        user2 = User.create('json@wustl.edu', 'strong_password')
         event = Event.create('dinner', datetime(2018, 7, 5, 18, 30, 0))
+        event2 = Event.create('dinner', datetime(2018, 7, 5, 18, 30, 0))
         user.events.append(event)
+        user2.events.append(event2)
         self.user_id = user.user_id
+        self.user_id2 = user2.user_id
         self.event_id = event.event_id
+        self.event_id2 = event2.event_id
         db.session.add(user)
+        db.session.add(user2)
         db.session.commit()
 
     def tearDown(self):
@@ -30,9 +36,13 @@ class TestTag(TestCase):
 
     def test_add_tag(self):
         user = User.query.filter_by(user_id=self.user_id).first()
+        user2 = User.query.filter_by(user_id=self.user_id2).first()
         event = Event.query.with_parent(user).filter_by(event_id=self.event_id).first()
+        event2 = Event.query.with_parent(user2).filter_by(event_id=self.event_id2).first()
         tag = Tag(tag_name='important', activated=False)
+        tag2 = Tag(tag_name='important', activated=False)
         event.tags.append(tag)
+        event2.tags.append(tag2)
         db.session.commit()
 
         user = User.query.filter_by(user_id=self.user_id).first()

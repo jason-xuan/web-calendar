@@ -2,6 +2,7 @@ from passlib.hash import sha256_crypt
 from datetime import datetime
 from .database import db
 from .utils import new_uuid
+from sqlalchemy import PrimaryKeyConstraint
 
 
 class User(db.Model):
@@ -46,9 +47,12 @@ class Event(db.Model):
 
 
 class Tag(db.Model):
-    event_id = db.Column(db.String(32), db.ForeignKey('event.event_id'), primary_key=False)
-    tag_name = db.Column(db.String(100), primary_key=True)
+    event_id = db.Column(db.String(32), db.ForeignKey('event.event_id'))
+    tag_name = db.Column(db.String(100))
     activated = db.Column(db.Boolean)
+    __table_args__ = (
+        PrimaryKeyConstraint('event_id', 'tag_name', name='tag'),
+    )
 
     @staticmethod
     def __repr__(self):
