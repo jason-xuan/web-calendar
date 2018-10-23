@@ -17,15 +17,20 @@ bp_api = Blueprint('api', __name__, url_prefix='/api')
 @bp_api.before_app_request
 def load_user():
     user_id = session.get('user_id')
-
     if user_id is None:
         g.user = None
     else:
         g.user = User.query.filter_by(user_id=user_id).first()
 
+    csrf_token = session.get('csrf_token')
+    if csrf_token is None:
+        g.csrf_token = None
+    else:
+        g.csrf_token = csrf_token
 
-@need_csrf
+
 @bp_api.route('/users/login', methods=['POST'])
+@need_csrf
 @check_fields(('email', str, check_email), ('password', str, check_word))
 def login():
     content = request.json
@@ -130,9 +135,9 @@ def delete_event():
     return result_success()
 
 
-@need_csrf
 @bp_api.route('/tags/create', methods=['POST'])
 @need_login
+@need_csrf
 @check_fields(('event_id', str, check_word), ('tag_name', str, check_word))
 def create_tag():
     content = request.json
@@ -152,8 +157,8 @@ def create_tag():
     return result_create_success()
 
 
-@need_csrf
 @bp_api.route('/tags/event', methods=['POST'])
+@need_csrf
 @need_login
 @check_fields(('event_id', str, check_word))
 def get_tags():
@@ -168,29 +173,37 @@ def get_tags():
     })
 
 
-@need_csrf
 @bp_api.route('/tags/update', methods=['POST'])
+@need_csrf
 @need_login
 @check_fields(('event_id', str, check_word), ('tag_name', str, check_word), ('activated', bool, lambda x: True))
 def update_tag():
     content = request.json
     event_id, tag_name, activated = content['event_id'], content['tag_name'], content['activated']
     event = Event.query.filter_by(event_id=event_id).first()
+    if event is None:
+        return error_msg(404, 'event not exist')
     tag = Tag.query.with_parent(event).filter_by(tag_name=tag_name).first()
+    if tag is None:
+        return error_msg(404, 'tag not exist')
     tag.activated = activated
     db.session.commit()
     return result_success()
 
 
-@need_csrf
 @bp_api.route('/tags/delete', methods=['POST'])
+@need_csrf
 @need_login
 @check_fields(('event_id', str, check_word), ('tag_name', str, check_word))
 def delete_tag():
     content = request.json
     event_id, tag_name = content['event_id'], content['tag_name']
     event = Event.query.filter_by(event_id=event_id).first()
+    if event is None:
+        return error_msg(404, 'event not exist')
     tag = Tag.query.with_parent(event).filter_by(tag_name=tag_name).first()
+    if tag is None:
+        return error_msg(404, 'tag not exist')
     db.session.delete(tag)
     db.session.commit()
     return result_success()
