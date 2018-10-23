@@ -5,7 +5,7 @@ from dateutil import parser
 from .database import db
 from .modules import User, Event, Tag
 from .utils import (
-    need_login, error_msg, json_response,
+    need_login, error_msg, json_response, need_csrf,
     check_fields, check_email, check_word, check_datetime, check_exist_fields,
     result_success, result_create_success
 )
@@ -23,6 +23,7 @@ def load_user():
         g.user = User.query.filter_by(user_id=user_id).first()
 
 
+@need_csrf
 @bp_api.route('/users/login', methods=['POST'])
 @check_fields(('email', str, check_email), ('password', str, check_word))
 def login():
@@ -37,6 +38,7 @@ def login():
     return result_success()
 
 
+@need_csrf
 @bp_api.route('/users/register', methods=['POST'])
 @check_fields(('email', str, check_email), ('password', str, check_word))
 def register():
