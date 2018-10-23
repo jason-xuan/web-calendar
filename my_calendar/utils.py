@@ -31,6 +31,10 @@ def check_datetime(d: str) -> bool:
         return type(date) is datetime
 
 
+def get_weekday(date: datetime) -> int:
+    return int(date.strftime('%w'))
+
+
 def check_exist_fields(*args):
     """
     return True if one of them in the dict
@@ -87,7 +91,9 @@ def need_csrf(func):
             return error_msg(400, 'post type must be json')
         if 'csrf_token' not in json_content:
             return error_msg(400, 'needs csrf token')
-        if json_content['csrf_token'] != session['csrf_token']:
+        if g.csrf_token is None:
+            return error_msg(404, 'missing csrf token in session')
+        if json_content['csrf_token'] != g.csrf_token:
             return error_msg(400, 'wrong csrf token')
         return func(*args, **kwargs)
     return return_func

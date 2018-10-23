@@ -30,16 +30,15 @@ class TestUserApi(TestCase):
         db.session.add(user)
         db.session.commit()
 
-        with self.app.test_client() as client:
-            client.get('/')
-            self.csrf_token = session['csrf_token']
-
     def tearDown(self):
         db.session.remove()
         db.drop_all()
 
     def test_login(self):
         with self.app.test_client() as client:
+            client.get('/')
+            self.csrf_token = session['csrf_token']
+
             response = client.post('/api/users/login', json={
                 'email': 'xua@wustl.edu',
                 'password': 'strong_password',
@@ -52,6 +51,9 @@ class TestUserApi(TestCase):
 
     def test_logout(self):
         with self.app.test_client() as client:
+            client.get('/')
+            self.csrf_token = session['csrf_token']
+
             response = client.post('/api/users/login', json={
                 'email': 'xua@wustl.edu',
                 'password': 'strong_password',
@@ -70,6 +72,9 @@ class TestUserApi(TestCase):
     def test_register(self):
         self.assertEqual(len(User.query.all()), 1)
         with self.app.test_client() as client:
+            client.get('/')
+            self.csrf_token = session['csrf_token']
+
             response = client.post('/api/users/register', json={
                 'email': 'jason@wustl.edu',
                 'password': 'strong_password',
@@ -81,42 +86,54 @@ class TestUserApi(TestCase):
             self.assertTrue(user.verify('strong_password'))
 
     def test_without_email(self):
-        response = self.client.post('/api/users/register', json={
-            'password': 'strong_password',
-            'csrf_token': self.csrf_token
-        })
-        self.assertEqual(response.json, self.field_not_complete)
+        with self.app.test_client() as client:
+            client.get('/')
+            self.csrf_token = session['csrf_token']
 
-        response = self.client.post('/api/users/login', json={
-            'password': 'strong_password',
-            'csrf_token': self.csrf_token
-        })
-        self.assertEqual(response.json, self.field_not_complete)
+            response = client.post('/api/users/register', json={
+                'password': 'strong_password',
+                'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, self.field_not_complete)
+
+            response = client.post('/api/users/login', json={
+                'password': 'strong_password',
+                'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, self.field_not_complete)
 
     def test_without_password(self):
-        response = self.client.post('/api/users/register', json={
-            'email': 'jason@wustl.edu',
-            'csrf_token': self.csrf_token
-        })
-        self.assertEqual(response.json, self.field_not_complete)
+        with self.app.test_client() as client:
+            client.get('/')
+            self.csrf_token = session['csrf_token']
 
-        response = self.client.post('/api/users/login', json={
-            'email': 'jason@wustl.edu',
-            'csrf_token': self.csrf_token
-        })
-        self.assertEqual(response.json, self.field_not_complete)
+            response = client.post('/api/users/register', json={
+                'email': 'jason@wustl.edu',
+                'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, self.field_not_complete)
+
+            response = client.post('/api/users/login', json={
+                'email': 'jason@wustl.edu',
+                'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, self.field_not_complete)
 
     def test_wrong_email_type(self):
-        response = self.client.post('/api/users/register', json={
-            'email': "today's dinner",
-            'password': 'strong_password',
-            'csrf_token': self.csrf_token
-        })
-        self.assertEqual(response.json, self.wrong_email)
+        with self.app.test_client() as client:
+            client.get('/')
+            self.csrf_token = session['csrf_token']
 
-        response = self.client.post('/api/users/login', json={
-            'email': "today's dinner",
-            'password': 'strong_password',
-            'csrf_token': self.csrf_token
-        })
-        self.assertEqual(response.json, self.wrong_email)
+            response = client.post('/api/users/register', json={
+                'email': "today's dinner",
+                'password': 'strong_password',
+                'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, self.wrong_email)
+
+            response = client.post('/api/users/login', json={
+                'email': "today's dinner",
+                'password': 'strong_password',
+                'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, self.wrong_email)
