@@ -61,6 +61,7 @@ def logout():
     return result_success()
 
 
+@need_csrf
 @bp_api.route('/events/user', methods=['POST'])
 @need_login
 @check_fields(('year', int, lambda y: True), ('month', int, lambda m: 0 <= m <= 11))
@@ -77,6 +78,7 @@ def get_user_events():
     })
 
 
+@need_csrf
 @bp_api.route('/events/create', methods=['POST'])
 @need_login
 @check_fields(('event_name', str, check_word), ('event_time', str, check_datetime))
@@ -89,6 +91,7 @@ def get_create():
     return result_create_success()
 
 
+@need_csrf
 @bp_api.route('/events/update', methods=['POST'])
 @need_login
 @check_fields(('event_id', str, check_word), ('update_fields', dict, check_exist_fields('event_name', 'event_time')))
@@ -112,6 +115,7 @@ def update_events():
     return result_success()
 
 
+@need_csrf
 @bp_api.route('/events/delete', methods=['POST'])
 @need_login
 @check_fields(('event_id', str, check_word))
@@ -126,6 +130,7 @@ def delete_event():
     return result_success()
 
 
+@need_csrf
 @bp_api.route('/tags/create', methods=['POST'])
 @need_login
 @check_fields(('event_id', str, check_word), ('tag_name', str, check_word))
@@ -145,6 +150,7 @@ def create_tag():
     return result_create_success()
 
 
+@need_csrf
 @bp_api.route('/tags/event', methods=['POST'])
 @need_login
 @check_fields(('event_id', str, check_word))
@@ -160,6 +166,7 @@ def get_tags():
     })
 
 
+@need_csrf
 @bp_api.route('/tags/update', methods=['POST'])
 @need_login
 @check_fields(('event_id', str, check_word), ('tag_name', str, check_word), ('activated', bool, lambda x: True))
@@ -173,6 +180,7 @@ def update_tag():
     return result_success()
 
 
+@need_csrf
 @bp_api.route('/tags/delete', methods=['POST'])
 @need_login
 @check_fields(('event_id', str, check_word), ('tag_name', str, check_word))

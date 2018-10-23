@@ -31,13 +31,19 @@ class TestUserApi(TestCase):
         db.session.add(user)
         db.session.commit()
 
+        with self.app.test_client() as client:
+            client.get('/')
+            self.csrf_token = session['csrf_token']
+
     def tearDown(self):
         db.session.remove()
         db.drop_all()
 
     def login(self):
         response = self.client.post('/api/users/login', json={
-            'email': 'xua@wustl.edu', 'password': 'strong_password'
+            'email': 'xua@wustl.edu',
+            'password': 'strong_password',
+            'csrf_token': self.csrf_token
         })
         self.assertEqual(response.json, self.success)
 
@@ -47,7 +53,8 @@ class TestUserApi(TestCase):
         self.assertEqual(len(Event.query.with_parent(user).all()), 0)
         response = self.client.post('/api/events/create', json={
             'event_name': "having dinner",
-            'event_time': str(datetime.now())
+            'event_time': str(datetime.now()),
+            'csrf_token': self.csrf_token
         })
         self.assertEqual(response.json, self.success_create)
         user = User.query.filter_by(user_id=self.user_id).first()
@@ -69,7 +76,8 @@ class TestUserApi(TestCase):
         db.session.commit()
         response = self.client.post('/api/events/user', json={
             'year': 2018,
-            'month': 7
+            'month': 7,
+            'csrf_token': self.csrf_token
         })
         self.assertEqual(len(response.json['events']), 3)
 
@@ -84,7 +92,8 @@ class TestUserApi(TestCase):
             'event_id': event_id,
             'update_fields': {
                 'event_name': 'lunch'
-            }
+            },
+            'csrf_token': self.csrf_token
         })
         self.assertEqual(response.json, self.success)
         event = Event.query.filter_by(event_id=event_id).first()
@@ -102,7 +111,8 @@ class TestUserApi(TestCase):
             'event_id': event_id,
             'update_fields': {
                 'event_time': str(now)
-            }
+            },
+            'csrf_token': self.csrf_token
         })
         self.assertEqual(response.json, self.success)
         event = Event.query.filter_by(event_id=event_id).first()
@@ -121,7 +131,8 @@ class TestUserApi(TestCase):
             'update_fields': {
                 'event_name': 'lunch',
                 'event_time': str(now)
-            }
+            },
+            'csrf_token': self.csrf_token
         })
         self.assertEqual(response.json, self.success)
         event = Event.query.filter_by(event_id=event_id).first()
@@ -142,7 +153,8 @@ class TestUserApi(TestCase):
         db.session.commit()
 
         response = self.client.post('/api/events/delete', json={
-            'event_id': event_id
+            'event_id': event_id,
+            'csrf_token': self.csrf_token
         })
         user = User.query.filter_by(user_id=self.user_id).first()
         self.assertEqual(response.json, self.success)

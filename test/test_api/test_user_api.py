@@ -31,9 +31,8 @@ class TestUserApi(TestCase):
         db.session.commit()
 
         with self.app.test_client() as client:
-            respond = client.get('/')
+            client.get('/')
             self.csrf_token = session['csrf_token']
-            # print(self.csrf_token)
 
     def tearDown(self):
         db.session.remove()
