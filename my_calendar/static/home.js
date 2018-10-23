@@ -14,7 +14,16 @@ function Calendar(month, year) {
     this.year  = (isNaN(year) || year == null) ? cal_current_date.getFullYear() : year;
 }
 cal = new Calendar();
-let loggedIn = false;
+loggedIn = false;
+function monthSelect() {
+    let str = document.getElementById("month_select").value.split("/");
+    let month = Number(str[0]) - 1;
+    let year = Number(str[1]);
+    cal.month = month;
+    cal.year = year;
+    update(loggedIn);
+}
+document.getElementById("month_select_btn").addEventListener("click", monthSelect)
 function update (loggedIn) {
     clearCalendar();
    
@@ -47,8 +56,24 @@ function update (loggedIn) {
                 //html += day;
                 dateCell.appendChild(document.createTextNode(day.toString()));
                 //2018-08-09
-                dateCell.setAttribute("id",cal.year.toString() + "-" + caseChange(cal.month + 1) +"-" +  caseChange(day));
+                let date_id = cal.year.toString() + "-" + caseChange(cal.month + 1) +"-" +  caseChange(day);
+                dateCell.setAttribute("id", date_id);
                 dateCell.setAttribute("class", "editable");
+                if(loggedIn) {
+                    dateCell.addEventListener("dblclick", function() {
+                        //alert(date_id);
+                        $("#mydialog").show();
+                        $("#time").show();				
+                        $("#time_lb").show();
+                        $("#save_btn").show();
+                        $("#save_changes_btn").hide();
+                        document.getElementById("title").value = "";
+                        document.getElementById("time").value = "";
+                        document.getElementById("edit_add_title").innerText = "Add Event"
+                        document.getElementById("date_id").value = date_id;
+                        //createEvent(date_id);
+                    });
+                }
                 weekRow.appendChild(dateCell);
                 day++;
             } else {
@@ -82,10 +107,9 @@ function clearCalendar() {
     }
 }
 //when you click the datecell, it can show the edit ui.
-$(document).on("click", ".editable", function() {
-      //alert("hi");
-        
-    });
+document.getElementById("close_dialog_btn").addEventListener("click", function() {
+    $("#mydialog").hide();
+})
 
 document.getElementById("next_month").addEventListener("click", function(){
     if(cal.month == 11) {

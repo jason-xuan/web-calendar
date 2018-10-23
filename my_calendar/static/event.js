@@ -1,7 +1,7 @@
 function getEvent(month, year) {
     fetch('/api/events/user', {
         method: "POST",
-        body: JSON.stringify({ year: year, month: month + 1 }),
+        body: JSON.stringify({ year: year, month: month + 1, csrf_token: csrf_token }),
         headers: { "Content-Type": "application/json; charset=utf-8" }
     })
         .then(res => res.json())
@@ -10,23 +10,35 @@ function getEvent(month, year) {
             let event_other = document.createElement("p");
             for (let i = 0; i < res.events.length; i++) {
                 let event_div = document.createElement("div");
-                event_div.appendChild(document.createTextNode(res.events[i].event_time));
-                event_div.appendChild(document.createTextNode(res.events[i].event_name));
+                let strong = document.createElement("strong");
+                //let more = false;
+                strong.appendChild(document.createTextNode(res.events[i].event_time.substring(11,16)));
+                event_div.appendChild(strong);
+                event_div.appendChild(document.createTextNode(res.events[i].event_name.substring(0,10)));
                 event_div.setAttribute("class", "event");
                 event_div.setAttribute("id", res.events[i].event_id);
+                //getTag(res.events[i].event_id);
                 //render a event by using this edit button
                 let event_edit = document.createElement("a");
                 event_edit.appendChild(document.createTextNode("edit"));
                 event_edit.setAttribute("type", "button");
                 event_edit.addEventListener("click", function() {
                     renderEvent(res.events[i].event_id, res.events[i].event_time, res.events[i].event_name);
-
                     //console.log("event" + res.events[i].json);
-                    alert("edit!!!");
+                    //alert("edit!!!");
                 })
-                //event_edit.addEventListener("click", renderEvent(res.events[i].event_id, res.events[i].event_time, res.events[i].event_name))
+                //delete a event by using this delete button
+                let event_delete = document.createElement("a");
+                event_delete.appendChild(document.createTextNode("del"));
+                event_delete.setAttribute("type", "button");
+                event_delete.addEventListener("click", function() {
+                    deleteEvent(res.events[i].event_id);
+                    alert("delete!!!");
+                })
+
 
                 event_div.appendChild(event_edit);
+                event_div.appendChild(event_delete);
                 let res_day = res.events[i].event_time.substring(0, 10);
                 document.getElementById(res_day).appendChild(event_div);
             }
@@ -35,19 +47,18 @@ function getEvent(month, year) {
         .catch(error => console.error('Error:', error))
 }
 
-function createEvent() {
+function createEvent(dates) {
     let title = document.getElementById("title").value;
-    let date = document.getElementById("date").value.split("-");
+    let date = dates.split("-");
     let year = Number(date[0]);
     let month = Number(date[1]) - 1;
     let day = Number(date[2]);
     let time = document.getElementById("time").value.split(":");
     let hour = Number(time[0]);
     let minute = Number(time[1]);
-    let notes = document.getElementById("description").value;
     fetch('/api/events/create', {
         method: "POST",
-        body: JSON.stringify({ event_name: title, event_time: new Date(year, month, day, hour - 5, minute, 0) }),
+        body: JSON.stringify({ event_name: title, event_time: new Date(year, month, day, hour - 5, minute, 0),  csrf_token: csrf_token}),
         headers: { "Content-Type": "application/json; charset=utf-8" }
     })
         .then(res => res.json())
@@ -55,21 +66,20 @@ function createEvent() {
         .then(function(res) {
             console.log(res["msg"]);
             if (res["code"] == 201) {
-                
-				//alert("hi");
-				//already sign in
-				loggedIn = true;
+                document.getElementById("title").value = "";
+                //document.getElementById("date_id").value = "";
+                document.getElementById("time").value = "";
 				update(loggedIn);
 			}
         })
         .catch(error => console.error('Error:', error));
 }
-document.getElementById("save_btn").addEventListener("click", createEvent);
+document.getElementById("save_btn").addEventListener("click", function(){
+    let date_id = document.getElementById("date_id").value;
+    createEvent(date_id);
+});
 
 function renderEvent(event_id, time, event) {
-    /* console.log("time:" + time);
-    console.log("event:" + event);
-    console.log("id:" + event_id); */
     document.getElementById("edit_add_title").innerText = "Update Event"
     if(event != null) {
         document.getElementById("title").value = event;
@@ -80,29 +90,56 @@ function renderEvent(event_id, time, event) {
     if(event_id != null) {
         document.getElementById("id").value = event_id;
     } 
-    $("#date").hide();
+    $("#mydialog").show()
+    $("#time").hide();
+    $("#time_lb").hide();
+    $("#save_btn").hide();
+    $("#save_changes_btn").show();
 }
 
-function updateEvent(event_id, time, event) {
+function updateEvent() {
     let title = document.getElementById("title").value;
     let event_id = document.getElementById("id").value;
-    let notes = document.getElementById("description").value;
     fetch('/api/events/update', {
         method: "POST",
         body: JSON.stringify({
-            event_id: id,
+            event_id: event_id,
             update_fields: {
                 event_name: title
-            }
+            },
+            csrf_token: csrf_token
         }),
         headers: {"Content-Type": "application/json; charset=utf-8"}
         })
       .then(res => res.json())
-      .then(response => console.log('Success:', JSON.stringify(response)))
+      .then(function(res) {
+          if(res["code"] == 200) {
+              //alert("successful saved");
+              $("#mydialog").hide();
+              document.getElementById("title").value = "";
+              document.getElementById("date_id").value = "";
+              document.getElementById("time").value = "";
+              document.getElementById("edit_add_title").innerText = "Add Event"
+              update(loggedIn);
+          }
+      })
+      //.then(response => console.log('Success:', JSON.stringify(response)))
       .catch(error => console.error('Error:',error))
 }
 document.getElementById("save_changes_btn").addEventListener("click", updateEvent);
 
-function deleteEvent(day) {
-
+function deleteEvent(event_id) {
+    fetch('/api/events/delete', {
+        method: "POST",
+        body: JSON.stringify({event_id: event_id, csrf_token: csrf_token}, ),
+        headers: {"Content-Type": "application/json; charset=utf-8"}
+        })
+      .then(res => res.json())
+      .then(function(res) {
+          if(res["code"] == 200) {
+              //alert("delete successful");
+              update(loggedIn);
+          }
+      }) 
+      .catch(error => console.error('Error:',error))
 }
