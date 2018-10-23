@@ -70,6 +70,7 @@ function renderEvent(event_id, time, event) {
     /* console.log("time:" + time);
     console.log("event:" + event);
     console.log("id:" + event_id); */
+    document.getElementById("edit_add_title").innerText = "Update Event"
     if(event != null) {
         document.getElementById("title").value = event;
     } 
@@ -79,7 +80,29 @@ function renderEvent(event_id, time, event) {
     if(event_id != null) {
         document.getElementById("id").value = event_id;
     } 
+    $("#date").hide();
 }
+
+function updateEvent(event_id, time, event) {
+    let title = document.getElementById("title").value;
+    let event_id = document.getElementById("id").value;
+    let notes = document.getElementById("description").value;
+    fetch('/api/events/update', {
+        method: "POST",
+        body: JSON.stringify({
+            event_id: id,
+            update_fields: {
+                event_name: title
+            }
+        }),
+        headers: {"Content-Type": "application/json; charset=utf-8"}
+        })
+      .then(res => res.json())
+      .then(response => console.log('Success:', JSON.stringify(response)))
+      .catch(error => console.error('Error:',error))
+}
+document.getElementById("save_changes_btn").addEventListener("click", updateEvent);
+
 function deleteEvent(day) {
 
 }
