@@ -34,13 +34,19 @@ class TestUserApi(TestCase):
         db.session.add(user)
         db.session.commit()
 
+        with self.app.test_client() as client:
+            client.get('/')
+            self.csrf_token = session['csrf_token']
+
     def tearDown(self):
         db.session.remove()
         db.drop_all()
 
     def login(self):
         response = self.client.post('/api/users/login', json={
-            'email': 'xua@wustl.edu', 'password': 'strong_password'
+            'email': 'xua@wustl.edu',
+            'password': 'strong_password',
+            'csrf_token': self.csrf_token
         })
         self.assertEqual(response.json, self.success)
 
@@ -50,7 +56,8 @@ class TestUserApi(TestCase):
         self.assertEqual(len(Tag.query.with_parent(event).all()), 0)
         response = self.client.post('/api/tags/create', json={
             'event_id': self.event_id,
-            'tag_name': 'important'
+            'tag_name': 'important',
+            'csrf_token': self.csrf_token
         })
         self.assertEqual(response.json, self.success_create)
         event = Event.query.filter_by(event_id=self.event_id).first()
@@ -66,6 +73,7 @@ class TestUserApi(TestCase):
         db.session.commit()
         response = self.client.post('/api/tags/event', json={
             'event_id': self.event_id,
+            'csrf_token': self.csrf_token
         })
         self.assert200(response)
         self.assertEqual(len(response.json['tags']), 2)
@@ -82,7 +90,8 @@ class TestUserApi(TestCase):
         response = self.client.post('/api/tags/update', json={
             'event_id': self.event_id,
             'tag_name': 'important',
-            'activated': True
+            'activated': True,
+            'csrf_token': self.csrf_token
         })
         event = Event.query.filter_by(event_id=self.event_id).first()
         tag = Tag.query.with_parent(event).filter_by(tag_name='important').first()
@@ -104,7 +113,8 @@ class TestUserApi(TestCase):
 
         response = self.client.post('/api/tags/delete', json={
             'event_id': self.event_id,
-            'tag_name': 'important'
+            'tag_name': 'important',
+            'csrf_token': self.csrf_token
         })
         self.assert200(response)
         self.assertEqual(response.json, self.success)
