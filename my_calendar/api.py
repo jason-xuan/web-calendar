@@ -88,7 +88,7 @@ def get_user_events():
 @need_csrf
 @need_login
 @check_fields(('event_name', str, check_word), ('event_time', str, check_datetime))
-def get_create():
+def create_events():
     content = request.json
     event_name, event_time = content['event_name'], parser.parse(content['event_time'])
     event = Event.create(event_name=event_name, event_time=event_time)
@@ -104,7 +104,9 @@ def get_create():
 def update_events():
     content = request.json
     event_id, update_fields = content['event_id'], content['update_fields']
-    event = Event.query.filter_by(event_id=event_id).first()
+    event = Event.query.with_parent(g.user).filter_by(event_id=event_id).first()
+    if event is None:
+        return error_msg(404, 'event not exist')
     if 'event_name' in update_fields:
         event_name = update_fields['event_name']
         if check_word(event_name):
@@ -128,7 +130,7 @@ def update_events():
 def delete_event():
     content = request.json
     event_id = content['event_id']
-    event = Event.query.filter_by(event_id=event_id).first()
+    event = Event.query.with_parent(g.user).filter_by(event_id=event_id).first()
     if event is None:
         return error_msg(404, 'event not exist')
     db.session.delete(event)
@@ -143,7 +145,7 @@ def delete_event():
 def create_tag():
     content = request.json
     event_id, tag_name = content['event_id'], content['tag_name']
-    event = Event.query.filter_by(event_id=event_id).first()
+    event = Event.query.with_parent(g.user).filter_by(event_id=event_id).first()
     if event is None:
         return error_msg(404, 'event not exist')
     if 'activated' in content and type(content['activated']) is bool:
@@ -165,7 +167,7 @@ def create_tag():
 def get_tags():
     content = request.json
     event_id = content['event_id']
-    event = Event.query.filter_by(event_id=event_id).first()
+    event = Event.query.with_parent(g.user).filter_by(event_id=event_id).first()
     if event is None:
         return error_msg(404, 'event not exist')
     return json_response({
@@ -181,7 +183,7 @@ def get_tags():
 def update_tag():
     content = request.json
     event_id, tag_name, activated = content['event_id'], content['tag_name'], content['activated']
-    event = Event.query.filter_by(event_id=event_id).first()
+    event = Event.query.with_parent(g.user).filter_by(event_id=event_id).first()
     if event is None:
         return error_msg(404, 'event not exist')
     tag = Tag.query.with_parent(event).filter_by(tag_name=tag_name).first()
@@ -199,7 +201,7 @@ def update_tag():
 def delete_tag():
     content = request.json
     event_id, tag_name = content['event_id'], content['tag_name']
-    event = Event.query.filter_by(event_id=event_id).first()
+    event = Event.query.with_parent(g.user).filter_by(event_id=event_id).first()
     if event is None:
         return error_msg(404, 'event not exist')
     tag = Tag.query.with_parent(event).filter_by(tag_name=tag_name).first()
