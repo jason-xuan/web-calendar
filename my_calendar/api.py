@@ -63,6 +63,8 @@ def register():
 # @need_login
 def logout():
     session.clear()
+    if g.csrf_token is not None:
+        session['csrf_token'] = g.csrf_token
     return result_success()
 
 

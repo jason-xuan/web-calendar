@@ -68,6 +68,7 @@ class TestUserApi(TestCase):
             self.assertEqual(response.json, self.success)
             # logout check
             self.assertFalse('user_id' in session)
+            self.assertTrue('csrf_token' in session)
 
     def test_register(self):
         self.assertEqual(len(User.query.all()), 1)
