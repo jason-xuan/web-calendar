@@ -33,7 +33,7 @@ document.getElementById("month_select_btn").addEventListener("click", monthSelec
 function update (loggedIn) {
     clearCalendar();
    
-    document.getElementById('display_month').innerHTML = cal_months_labels[cal.month] + " " + cal.year;
+    document.getElementById('display_month').innerText = cal_months_labels[cal.month] + " " + cal.year;
     // get first day of month
     let firstDay = new Date(cal.year, cal.month, 1);
     let startingDay = firstDay.getDay();
@@ -85,7 +85,7 @@ function update (loggedIn) {
                         document.getElementById("time").value = "";
                         
                         document.getElementById("date_id").value = date_id;
-                        document.getElementById("edit_add_title").innerText = date_id;
+                        document.getElementById("edit_add_title").innerText =  date_id;
                         //createEvent(date_id);
                     });
                 }
@@ -153,3 +153,11 @@ document.getElementById("prev_month").addEventListener("click", function(){
 
 }, false);
 update(loggedIn);
+function escapeHtml(unsafe) {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+ }
