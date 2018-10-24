@@ -3,6 +3,7 @@ venv/*
 */__pycache__/*
 *.xml
 *.iml
+*.db
 
 .idea/deployment.xml
 .idea/fall2018-module5-group-467138-467319.iml
