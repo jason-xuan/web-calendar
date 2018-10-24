@@ -1,6 +1,6 @@
 from flask import Flask
 
-from .database import init_app
+from .database import init_app, rebuild_db
 
 
 config = {

@@ -5,7 +5,7 @@ from my_calendar.database import db
 from my_calendar.modules import User
 
 
-class TestUserApi(TestCase):
+class TestUserRegister(TestCase):
     SQLALCHEMY_DATABASE_URI = "sqlite:///db_for_test.db"
     TESTING = True
 
@@ -32,42 +32,6 @@ class TestUserApi(TestCase):
     def tearDown(self):
         db.session.remove()
         db.drop_all()
-
-    def test_login(self):
-        with self.app.test_client() as client:
-            client.get('/')
-            self.csrf_token = session['csrf_token']
-
-            response = client.post('/api/users/login', json={
-                'email': 'xua@wustl.edu',
-                'password': 'strong_password',
-                'csrf_token': self.csrf_token
-                })
-            self.assertEqual(response.json, self.success)
-            # login check
-            self.assertTrue('user_id' in session)
-            self.assertEqual(session['user_id'], self.user_id)
-
-    def test_logout(self):
-        with self.app.test_client() as client:
-            client.get('/')
-            self.csrf_token = session['csrf_token']
-
-            response = client.post('/api/users/login', json={
-                'email': 'xua@wustl.edu',
-                'password': 'strong_password',
-                'csrf_token': self.csrf_token
-                })
-            self.assertEqual(response.json, self.success)
-            # login check
-            self.assertTrue('user_id' in session)
-            self.assertEqual(session['user_id'], self.user_id)
-
-            response = client.get('/api/users/logout')
-            self.assertEqual(response.json, self.success)
-            # logout check
-            self.assertFalse('user_id' in session)
-            self.assertTrue('csrf_token' in session)
 
     def test_register(self):
         self.assertEqual(len(User.query.all()), 1)
@@ -98,12 +62,6 @@ class TestUserApi(TestCase):
             self.assertEqual(len(User.query.all()), 1)
             self.assertIsNone(User.query.filter_by(email='jason@wustl.edu').first())
 
-            response = client.post('/api/users/login', json={
-                'password': 'strong_password',
-                'csrf_token': self.csrf_token
-            })
-            self.assertEqual(response.json, self.field_not_complete)
-
     def test_without_password(self):
         with self.app.test_client() as client:
             client.get('/')
@@ -116,12 +74,6 @@ class TestUserApi(TestCase):
             self.assertEqual(response.json, self.field_not_complete)
             self.assertEqual(len(User.query.all()), 1)
             self.assertIsNone(User.query.filter_by(email='jason@wustl.edu').first())
-
-            response = client.post('/api/users/login', json={
-                'email': 'jason@wustl.edu',
-                'csrf_token': self.csrf_token
-            })
-            self.assertEqual(response.json, self.field_not_complete)
 
     def test_wrong_email_type(self):
         with self.app.test_client() as client:
@@ -136,13 +88,6 @@ class TestUserApi(TestCase):
             self.assertEqual(response.json, self.wrong_email)
             self.assertEqual(len(User.query.all()), 1)
             self.assertIsNone(User.query.filter_by(email='jason@wustl.edu').first())
-
-            response = client.post('/api/users/login', json={
-                'email': "today's dinner",
-                'password': 'strong_password',
-                'csrf_token': self.csrf_token
-            })
-            self.assertEqual(response.json, self.wrong_email)
 
     def test_without_csrf(self):
         self.assertEqual(len(User.query.all()), 1)
@@ -159,13 +104,6 @@ class TestUserApi(TestCase):
             self.assertEqual(len(User.query.all()), 1)
             self.assertIsNone(User.query.filter_by(email='jason@wustl.edu').first())
 
-            response = client.post('/api/users/login', json={
-                'email': "today's dinner",
-                'password': 'strong_password',
-                # 'csrf_token': self.csrf_token
-            })
-            self.assertEqual(response.json, self.error_need_csrf)
-
     def test_wrong_csrf(self):
         self.assertEqual(len(User.query.all()), 1)
         with self.app.test_client() as client:
@@ -180,10 +118,3 @@ class TestUserApi(TestCase):
             self.assertEqual(response.json, self.error_wrong_csrf)
             self.assertEqual(len(User.query.all()), 1)
             self.assertIsNone(User.query.filter_by(email='jason@wustl.edu').first())
-
-            response = client.post('/api/users/login', json={
-                'email': "today's dinner",
-                'password': 'strong_password',
-                'csrf_token': 'not csrf'
-            })
-            self.assertEqual(response.json, self.error_wrong_csrf)

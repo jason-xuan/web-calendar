@@ -9,7 +9,7 @@ class User(db.Model):
     user_id = db.Column(db.String(32), primary_key=True)
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(80))
-    events = db.relationship('Event', lazy=True, backref='owner')
+    events = db.relationship('Event', lazy=True, backref='owner', cascade='all,delete')
 
     @staticmethod
     def create(email: str, password: str):
