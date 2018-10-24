@@ -13,6 +13,7 @@ from .utils import (
 
 bp_api = Blueprint('api', __name__, url_prefix='/api')
 
+
 @bp_api.before_app_request
 def load_user():
     user_id = session.get('user_id')
@@ -100,11 +101,13 @@ def get_user_events():
 @bp_api.route('/events/create', methods=['POST'])
 @need_csrf
 @need_login
-@check_fields(('event_name', str, check_word), ('event_time', str, check_datetime))
+@check_fields(('event_name', str, check_word),
+              ('event_time', str, check_datetime),
+              ('repeat', str, lambda value: value in {'year', 'month', 'week', 'day', 'none'}))
 def create_events():
     content = request.json
-    event_name, event_time = content['event_name'], parser.parse(content['event_time'])
-    event = Event.create(event_name=event_name, event_time=event_time)
+    event_name, event_time, repeat = content['event_name'], parser.parse(content['event_time']), content['repeat']
+    event = Event.create(event_name=event_name, event_time=event_time, repeat=repeat)
     g.user.events.append(event)
     db.session.commit()
     return result_create_success()
@@ -113,7 +116,8 @@ def create_events():
 @bp_api.route('/events/update', methods=['POST'])
 @need_csrf
 @need_login
-@check_fields(('event_id', str, check_word), ('update_fields', dict, check_exist_fields('event_name', 'event_time')))
+@check_fields(('event_id', str, check_word),
+              ('update_fields', dict, check_exist_fields('event_name', 'event_time', 'repeat')))
 def update_events():
     content = request.json
     event_id, update_fields = content['event_id'], content['update_fields']
@@ -132,6 +136,10 @@ def update_events():
             event.event_time = parser.parse(event_time)
         else:
             return error_msg(403, 'event_time format is invalid')
+    if 'repeat' in update_fields:
+        repeat = update_fields['repeat']
+        if repeat in {'year', 'month', 'week', 'day', 'none'}:
+            event.repeat = repeat
     db.session.commit()
     return result_success()
 

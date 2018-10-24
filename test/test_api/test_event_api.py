@@ -64,6 +64,7 @@ class TestUserApi(TestCase):
             response = client.post('/api/events/create', json={
                 'event_name': "having dinner",
                 'event_time': str(datetime.now()),
+                'repeat': 'none',
                 'csrf_token': self.csrf_token
             })
             self.assertEqual(response.json, self.success_create)
