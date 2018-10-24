@@ -6,7 +6,7 @@ function getEvent(month, year) {
     })
         .then(res => res.json())
         .then(function (res) {
-            console.log(res.events.length)
+            //console.log(res.events.length)
             let event_other = document.createElement("p");
             for (let i = 0; i < res.events.length; i++) {
                 let event_div = document.createElement("div");
@@ -17,10 +17,12 @@ function getEvent(month, year) {
                 event_div.appendChild(document.createTextNode(res.events[i].event_name.substring(0,10)));
                 event_div.setAttribute("class", "event");
                 event_div.setAttribute("id", res.events[i].event_id);
-                //getTag(res.events[i].event_id);
+                getTag(res.events[i].event_id);
                 //render a event by using this edit button
                 let event_edit = document.createElement("a");
+                //let event_edit = document.createElement("button");
                 event_edit.appendChild(document.createTextNode("edit"));
+                //event_edit.setAttribute("class", "btn btn-xs")
                 event_edit.setAttribute("type", "button");
                 event_edit.addEventListener("click", function() {
                     renderEvent(res.events[i].event_id, res.events[i].event_time, res.events[i].event_name);
@@ -28,12 +30,18 @@ function getEvent(month, year) {
                     //alert("edit!!!");
                 })
                 //delete a event by using this delete button
+                //let event_delete = document.createElement("button");
                 let event_delete = document.createElement("a");
+
                 event_delete.appendChild(document.createTextNode("del"));
+                //event_delete.setAttribute("class", "btn btn-xs")
                 event_delete.setAttribute("type", "button");
                 event_delete.addEventListener("click", function() {
-                    deleteEvent(res.events[i].event_id);
-                    alert("delete!!!");
+                    let del = confirm("Are you sure to delete this event?")
+                    if(del == true) {
+                        deleteEvent(res.events[i].event_id);
+                    } 
+                    //alert("delete!!!");
                 })
 
 
@@ -66,6 +74,7 @@ function createEvent(dates) {
         .then(function(res) {
             console.log(res["msg"]);
             if (res["code"] == 201) {
+               
                 document.getElementById("title").value = "";
                 //document.getElementById("date_id").value = "";
                 document.getElementById("time").value = "";
@@ -95,6 +104,9 @@ function renderEvent(event_id, time, event) {
     $("#time_lb").hide();
     $("#save_btn").hide();
     $("#save_changes_btn").show();
+    $("#tag").show();
+    $("#tag_lb").show();
+    $("#save_tags_btn").show();
 }
 
 function updateEvent() {
