@@ -54,6 +54,11 @@ function getEvent(month, year) {
 
 function createEvent(dates) {
     let title = document.getElementById("title").value;
+    let reg_event = /^[a-zA-Z0-9_]+$/;
+        if(!reg_event.exec(title)) {
+            alert("Please enter your event title again");
+            return;
+        }
     let date = dates.split("-");
     let year = Number(date[0]);
     let month = Number(date[1]) - 1;
