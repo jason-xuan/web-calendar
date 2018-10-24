@@ -13,11 +13,15 @@
 
 <body>
     <header>
-        <button class="btn btn-info btn-sm" id="prev_month" > prev </button>
+        <div style="float: right" class="btn-group" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-secondary btn-sm" id="prev_month">Prev</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="next_month">Next</button>
+        </div>
+        <!-- <button class="btn btn-info btn-sm" id="prev_month" > prev </button> -->
         <h2 id="display_month">March 2017</h2>
         <input type="text" placeholder="mm/yyyy" id="month_select">
         <button class="btn btn-info btn-sm" id="month_select_btn" > go </button>
-        <button class="btn btn-info btn-sm" id="next_month" > next </button>
+        <!-- <button class="btn btn-info btn-sm" id="next_month" > next </button> -->
     </header>
 <br>
 <div class="container">
@@ -69,13 +73,13 @@
     <input type="text" name="title" id="title">
     <label for="time" id="time_lb">Time:</label>
     <input type="text" placeholder="hh:mm" name="time" id="time">
-    
-    <!-- Tags:<input type="text" name="tag" id="tag">
-    <button input type="button" class="btn btn-primary" id="save_tags_btn">Add Tag</button> -->
+    <label for="tag" id="tag_lb">Tags:</label>
+    <input type="text" name="tag" id="tag">
+    <button input type="button" class="btn btn-primary" id="save_tags_btn">Add Tag</button>
     <input type="hidden" name="date_id" id="date_id">
     <input type="hidden" name="id" id="id">
     <button type="button" class="btn btn-primary" id="save_btn">Add Event</button>
-    <input type="submit" value="Save Changes" id="save_changes_btn">
+    <input type="button" class="btn btn-primary" value="Save Changes" id="save_changes_btn">
     <button type="button" class="btn btn-sm" id="close_dialog_btn">close</button>
     <input type="hidden" id="csrf_token">
 </div>
