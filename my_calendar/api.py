@@ -67,6 +67,19 @@ def logout():
     return result_success()
 
 
+@bp_api.route('/users/delete', methods=['POST'])
+@need_csrf
+@need_login
+def user_delete():
+    # check if exist same user
+    db.session.delete(g.user)
+    db.session.commit()
+    session.clear()
+    if g.csrf_token is not None:
+        session['csrf_token'] = g.csrf_token
+    return result_success()
+
+
 @bp_api.route('/events/user', methods=['POST'])
 @need_csrf
 @need_login
