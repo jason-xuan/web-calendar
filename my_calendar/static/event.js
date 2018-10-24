@@ -64,9 +64,10 @@ function createEvent(dates) {
     let month = Number(date[1]) - 1;
     let day = Number(date[2]);
     let time = document.getElementById("time").value.split(":");
+    let dec = document.getElementById("time").value.split(".");
     let hour = Number(time[0]);
     let minute = Number(time[1]);
-    if(hour > 23 || hour < 0 || minute > 60 || minute < 0 || !hour || !minute) {
+    if(hour > 23 || hour < 0 || minute > 60 || minute < 0 || !hour || !minute || dec.length >=2) {
         alert("invalid time");
         return;
     }
@@ -130,9 +131,10 @@ function updateEvent() {
     let month = Number(date[1]) - 1;
     let day = Number(date[2]);
     let time = document.getElementById("time").value.split(":");
+    let dec = document.getElementById("time").value.split(".");
     let hour = Number(time[0]);
     let minute = Number(time[1]);
-    if(hour > 23 || hour < 0 || minute > 60 || minute < 0 || !hour || !minute) {
+    if(hour > 23 || hour < 0 || minute > 60 || minute < 0 || !hour || !minute || dec.length >=2) {
         alert("invalid time");
         return;
     }
