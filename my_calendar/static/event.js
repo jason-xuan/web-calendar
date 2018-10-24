@@ -128,6 +128,10 @@ function updateEvent() {
     let time = document.getElementById("time").value.split(":");
     let hour = Number(time[0]);
     let minute = Number(time[1]);
+    if(hour > 23 || hour < 0 || minute > 60 || minute < 0 || !hour || !minute) {
+        alert("invalid time");
+        return;
+    }
     fetch('/api/events/update', {
         method: "POST",
         body: JSON.stringify({
