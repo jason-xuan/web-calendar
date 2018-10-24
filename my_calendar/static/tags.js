@@ -13,7 +13,7 @@ function createTag() {
     })
         .then(res => res.json())
         .then(function(res) {
-            console.log(res);
+            //console.log(res);
             if(res["code"] == 201) {
                 alert("tag created");
                 document.getElementById("tag").value = "";
@@ -32,7 +32,7 @@ function getTag(event_id) {
     })
         .then(res => res.json())
         .then(function(res) {
-            console.log(res);
+            //console.log(res);
             let event = document.getElementById(event_id);
             for(let i = 0; i < res.tags.length; i++) {
                 //if(tags[i].activated == true)
@@ -42,10 +42,11 @@ function getTag(event_id) {
                 let tag = document.createElement("a");
                 tag.setAttribute("class", "tag");
                 tag.setAttribute("type", "button");
+                tag.appendChild(document.createTextNode(res.tags[i].tag_name));
                 if(activated) {
-                    tag.appendChild(document.createTextNode(res.tags[i].tag_name + "!!!"));
+                    tag.style.color = "red";
                 } else {
-                    tag.appendChild(document.createTextNode(res.tags[i].tag_name));
+                    tag.style.color = "gray";
                 }
                 tag.addEventListener("click", function() {
                     activated = !activated;
@@ -63,7 +64,7 @@ function updateTag(event_id, tag_name, activated) {
     })
     .then(res => res.json())
     .then(function(res) {
-        console.log(res);
+        //console.log(res);
         update(loggedIn);
     }) 
     $("#mydialog").hide();
@@ -88,7 +89,7 @@ function deleteTag(event_id, tag_name) {
     })
     .then(res => res.json())
     .then(function(res) {
-        console.log(res);
+        //console.log(res);
         if(res["code"] == 200) {
             update("logedIn");
             $("#mydialog").hide();
