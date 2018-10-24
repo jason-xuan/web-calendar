@@ -1,7 +1,8 @@
 from flask_testing import TestCase
 from my_calendar import create_app
 from my_calendar.database import db
-from my_calendar.modules import User
+from my_calendar.modules import User, Event
+from datetime import datetime
 
 
 class TestUser(TestCase):
@@ -65,3 +66,24 @@ class TestUser(TestCase):
     def test_query_user_not_exist(self):
         self.assertIsNone(User.query.filter_by(email='this@xua').first())
         self.assertIsNone(User.query.filter_by(user_id='sdfsdf').first())
+
+    def test_delete_user_and_events(self):
+        self.assertEqual(len(User.query.all()), 0)
+
+        user = User.create('xua@wustl.edu', 'strong_password')
+        user.events = [
+            Event.create('dinner', datetime.now()),
+            Event.create('lunch', datetime.now()),
+            Event.create('breakfast', datetime.now()),
+        ]
+        user_id = user.user_id
+        db.session.add(user)
+        db.session.commit()
+        self.assertEqual(len(User.query.all()), 1)
+        self.assertEqual(len(Event.query.all()), 3)
+
+        user = User.query.filter_by(user_id=user_id).first()
+        db.session.delete(user)
+        db.session.commit()
+        self.assertEqual(len(User.query.all()), 0)
+        self.assertEqual(len(Event.query.all()), 0)

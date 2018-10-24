@@ -1,8 +1,9 @@
 from flask import session
 from flask_testing import TestCase
+from datetime import datetime
 from my_calendar import create_app
 from my_calendar.database import db
-from my_calendar.modules import User
+from my_calendar.modules import User, Event
 
 
 class TestUserDelete(TestCase):
@@ -32,20 +33,20 @@ class TestUserDelete(TestCase):
         db.session.remove()
         db.drop_all()
 
+    def login(self, client):
+        client.get('/')
+        self.csrf_token = session['csrf_token']
+
+        response = client.post('/api/users/login', json={
+            'email': 'xua@wustl.edu',
+            'password': 'strong_password',
+            'csrf_token': self.csrf_token
+        })
+        self.assertEqual(response.json, self.success)
+
     def test_delete(self):
         with self.app.test_client() as client:
-            client.get('/')
-            self.csrf_token = session['csrf_token']
-
-            response = client.post('/api/users/login', json={
-                'email': 'xua@wustl.edu',
-                'password': 'strong_password',
-                'csrf_token': self.csrf_token
-                })
-            self.assertEqual(response.json, self.success)
-            # login check
-            self.assertTrue('user_id' in session)
-            self.assertEqual(session['user_id'], self.user_id)
+            self.login(client)
 
             response = client.post('/api/users/delete', json={
                 'csrf_token': self.csrf_token
@@ -56,6 +57,32 @@ class TestUserDelete(TestCase):
             self.assertTrue('csrf_token' in session)
 
             self.assertEqual(len(User.query.all()), 0)
+            self.assertIsNone(User.query.filter_by(user_id=self.user_id).first())
+
+    def test_delete_with_events(self):
+        with self.app.test_client() as client:
+            self.login(client)
+
+            user = User.query.filter_by(user_id=self.user_id).first()
+            user.events = [
+                Event.create('dinner', datetime.now()),
+                Event.create('lunch', datetime.now()),
+                Event.create('breakfast', datetime.now()),
+            ]
+            db.session.commit()
+            self.assertEqual(len(User.query.all()), 1)
+            self.assertEqual(len(Event.query.all()), 3)
+
+            response = client.post('/api/users/delete', json={
+                'csrf_token': self.csrf_token
+            })
+            self.assertEqual(response.json, self.success)
+            # logout check
+            self.assertFalse('user_id' in session)
+            self.assertTrue('csrf_token' in session)
+
+            self.assertEqual(len(User.query.all()), 0)
+            self.assertEqual(len(Event.query.all()), 0)
             self.assertIsNone(User.query.filter_by(user_id=self.user_id).first())
 
     def test_without_login(self):
