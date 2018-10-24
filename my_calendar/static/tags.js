@@ -6,6 +6,11 @@ function createTag() {
     }) */
     let event_id = document.getElementById("id").value;
     let tag_value = document.getElementById("tag").value;
+    let reg_event = /^[a-zA-Z0-9_]+$/;
+        if(!reg_event.exec(title)) {
+            alert("Please enter your event title again");
+            return;
+        }
     fetch('/api/tags/create', {
         method: "POST",
         body: JSON.stringify({event_id : event_id, tag_name: tag_value, csrf_token: csrf_token}),
