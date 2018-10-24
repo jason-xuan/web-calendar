@@ -102,12 +102,11 @@ def get_user_events():
 @need_csrf
 @need_login
 @check_fields(('event_name', str, check_word),
-              ('event_time', str, check_datetime),
-              ('repeat', str, lambda value: value in {'year', 'month', 'week', 'day', 'none'}))
+              ('event_time', str, check_datetime))
 def create_events():
     content = request.json
-    event_name, event_time, repeat = content['event_name'], parser.parse(content['event_time']), content['repeat']
-    event = Event.create(event_name=event_name, event_time=event_time, repeat=repeat)
+    event_name, event_time = content['event_name'], parser.parse(content['event_time'])
+    event = Event.create(event_name=event_name, event_time=event_time)
     g.user.events.append(event)
     db.session.commit()
     return result_create_success()
@@ -117,7 +116,7 @@ def create_events():
 @need_csrf
 @need_login
 @check_fields(('event_id', str, check_word),
-              ('update_fields', dict, check_exist_fields('event_name', 'event_time', 'repeat')))
+              ('update_fields', dict, check_exist_fields('event_name', 'event_time')))
 def update_events():
     content = request.json
     event_id, update_fields = content['event_id'], content['update_fields']
@@ -136,10 +135,6 @@ def update_events():
             event.event_time = parser.parse(event_time)
         else:
             return error_msg(403, 'event_time format is invalid')
-    if 'repeat' in update_fields:
-        repeat = update_fields['repeat']
-        if repeat in {'year', 'month', 'week', 'day', 'none'}:
-            event.repeat = repeat
     db.session.commit()
     return result_success()
 

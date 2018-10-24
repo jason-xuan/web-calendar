@@ -26,13 +26,12 @@ class Event(db.Model):
     event_id = db.Column(db.String(32), primary_key=True)
     event_name = db.Column(db.String(100))
     event_time = db.Column(db.DateTime)
-    repeat = db.Column(db.String(5), default='none')
     owner_id = db.Column(db.String(32), db.ForeignKey('user.user_id'), nullable=False)
     tags = db.relationship('Tag', backref='event', lazy=False, cascade='all,delete')
 
     @staticmethod
-    def create(event_name: str, event_time: datetime, repeat: str='none'):
-        return Event(event_id=new_uuid(), event_name=event_name, event_time=event_time, repeat=repeat)
+    def create(event_name: str, event_time: datetime):
+        return Event(event_id=new_uuid(), event_name=event_name, event_time=event_time)
 
     def __repr__(self):
         return f'{self.event_name}:{self.event_time}'
