@@ -7,6 +7,10 @@
 
 ## Additional Details
 
+project URL:
+
+<http://ec2-52-14-93-16.us-east-2.compute.amazonaws.com:8080/>
+
 ## Creative Portion
 
 1. Users can tag an event with a tag and enable/disable those tags in the calendar view.
