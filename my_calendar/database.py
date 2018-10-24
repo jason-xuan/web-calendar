@@ -10,3 +10,15 @@ def init_app():
     the application factory.
     """
     db.init_app(current_app)
+
+
+def rebuild_db():
+    """
+    run for rebuild database, often run in the python commandline
+    :return:
+    """
+    from my_calendar import create_app
+    app = create_app()
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
