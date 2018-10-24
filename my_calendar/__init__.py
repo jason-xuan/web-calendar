@@ -13,23 +13,23 @@ config = {
 
 
 def create_app(test_config=None):
-    app = Flask(__name__)
+    _app = Flask(__name__)
 
-    app.secret_key = 'super secret key'
-    app.config.from_mapping(config)
+    _app.secret_key = 'super secret key'
+    _app.config.from_mapping(config)
     if test_config is not None:
-        app.config.from_object(test_config)
+        _app.config.from_object(test_config)
 
     from my_calendar.home import bp_home
     from my_calendar.api import bp_api
-    app.register_blueprint(bp_home)
-    app.register_blueprint(bp_api)
+    _app.register_blueprint(bp_home)
+    _app.register_blueprint(bp_api)
 
     from .modules import User, Event, Tag
-    with app.app_context():
+    with _app.app_context():
         database.init_app()
 
-    return app
+    return _app
 
 
 app = create_app()

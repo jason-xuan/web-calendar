@@ -19,6 +19,11 @@ Welcome to your own calendar.
 6. You can use the input field or "prev" and "next" button on the right top of the page to visit any month!
 7. If you can't remember all the instructions, check the "help" button and you will find what you need.
 
+## Deployment
+```bash
+gunicorn -w 4 -b 0.0.0.0:8080 my_calendar:app --daemon
+```
+
 ## Creative Portion
 
 1. Users can tag an event with a tag and enable/disable those tags in the calendar view.
