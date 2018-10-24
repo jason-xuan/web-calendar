@@ -10,6 +10,14 @@
 project URL:
 
 <http://ec2-52-14-93-16.us-east-2.compute.amazonaws.com:8080/>
+Welcome to your own calendar.
+1. Double click on the day box to create a event of that day. Once you click, you will see the dialog below.   
+2. Edit you event after click on the "edit" button right next to that event. When you click that, there will be a dialog under the calendar. By using that dialog, you can add tags or make some changes to your event.
+3. Delete it by using "del" button.
+4. Highlight your tags by clicking on the tags you created.
+5. Delete your tags by clicking it. Look at the dialog below and you will find the delete button.
+6. You can use the input field or "prev" and "next" button on the right top of the page to visit any month!
+7. If you can't remember all the instructions, check the "help" button and you will find what you need.
 
 ## Creative Portion
 

@@ -15,6 +15,10 @@
     table-layout: auto;
 
 }
+#header_group {
+    float: right; 
+    margin: 10px
+}
 td {
     border: 1px solid #ccc;
     color: #444;
@@ -81,6 +85,7 @@ body{
   #display_month {
     display: inline-block;
     text-align: center;
+    margin: 10px;
   }
   #prev_month {
     float: left;
@@ -144,7 +149,9 @@ body{
   #logout_btn {
      display: none; 
   }
-
+  #remove_btn {
+    display: none;
+  }
   #save_changes_byn {
       display: none;
   }

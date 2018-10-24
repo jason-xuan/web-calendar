@@ -17,6 +17,12 @@ cal = new Calendar();
 loggedIn = false;
 function monthSelect() {
     let str = document.getElementById("month_select").value.split("/");
+    let strs = document.getElementById("month_select").value;
+    if(strs == "" || str[0] == "" || str.length != 2 || str[1].length != 4 || str[0].length > 2) {
+        alert("Invalid Input");
+        document.getElementById("month_select").value = "";
+        return;
+    }
     let month = Number(str[0]) - 1;
     let year = Number(str[1]);
     cal.month = month;
@@ -67,15 +73,19 @@ function update (loggedIn) {
                         $("#time_lb").show();
                         $("#save_btn").show();
                         $("#tag").hide();
+                        $("#tag").removeAttr("readonly");
                         $("#tag_lb").hide();
                         $("#save_tags_btn").hide();
                         $("#save_changes_btn").hide();
                         $("#del_tag_btn").hide();
-                        document.getElementById("edit_add_title").innerHTML = "Add Event on" + "hello";
+                        $("#title").show();
+                        $("#title_lb").show();
+                        //document.getElementById("edit_add_title").innerHTML = "Add Event on" + "hello";
                         document.getElementById("title").value = "";
                         document.getElementById("time").value = "";
-                        document.getElementById("edit_add_title").innerText = "Add Event"
+                        
                         document.getElementById("date_id").value = date_id;
+                        document.getElementById("edit_add_title").innerText = date_id;
                         //createEvent(date_id);
                     });
                 }
@@ -115,7 +125,12 @@ function clearCalendar() {
 document.getElementById("close_dialog_btn").addEventListener("click", function() {
     $("#mydialog").hide();
 })
-
+document.getElementById("close_help_btn").addEventListener("click", function() {
+    $("#help").hide();
+})
+document.getElementById("help_btn").addEventListener("click", function() {
+    $("#help").show();
+})
 document.getElementById("next_month").addEventListener("click", function(){
     if(cal.month == 11) {
         cal.month = 0;

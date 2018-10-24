@@ -7,14 +7,13 @@ function getEvent(month, year) {
         .then(res => res.json())
         .then(function (res) {
             //console.log(res.events.length)
-            let event_other = document.createElement("p");
             for (let i = 0; i < res.events.length; i++) {
                 let event_div = document.createElement("div");
                 let strong = document.createElement("strong");
                 //let more = false;
                 strong.appendChild(document.createTextNode(res.events[i].event_time.substring(11,16)));
                 event_div.appendChild(strong);
-                event_div.appendChild(document.createTextNode(res.events[i].event_name.substring(0,10)));
+                event_div.appendChild(document.createTextNode(res.events[i].event_name));
                 event_div.setAttribute("class", "event");
                 event_div.setAttribute("id", res.events[i].event_id);
                 getTag(res.events[i].event_id);
@@ -43,8 +42,6 @@ function getEvent(month, year) {
                     } 
                     //alert("delete!!!");
                 })
-
-
                 event_div.appendChild(event_edit);
                 event_div.appendChild(event_delete);
                 let res_day = res.events[i].event_time.substring(0, 10);
@@ -66,7 +63,7 @@ function createEvent(dates) {
     let minute = Number(time[1]);
     fetch('/api/events/create', {
         method: "POST",
-        body: JSON.stringify({ event_name: title, event_time: new Date(year, month, day, hour - 5, minute, 0),  csrf_token: csrf_token}),
+        body: JSON.stringify({ event_name: title, event_time: new Date(year, month, day, hour - 5, minute, 0), csrf_token: csrf_token}),
         headers: { "Content-Type": "application/json; charset=utf-8" }
     })
         .then(res => res.json())
@@ -74,7 +71,6 @@ function createEvent(dates) {
         .then(function(res) {
             console.log(res["msg"]);
             if (res["code"] == 201) {
-               
                 document.getElementById("title").value = "";
                 //document.getElementById("date_id").value = "";
                 document.getElementById("time").value = "";
@@ -94,15 +90,18 @@ function renderEvent(event_id, time, event) {
         document.getElementById("title").value = event;
     } 
     if(time != null) {
+        document.getElementById("date_id").value = time.substring(0,10);
         document.getElementById("time").value = time.substring(11,16);
     }
     if(event_id != null) {
         document.getElementById("id").value = event_id;
     } 
-    $("#mydialog").show()
-    $("#time").hide();
-    $("#time_lb").hide();
+    $("#mydialog").show();
+    $("#time").show();
+    document.getElementById("edit_add_title").innerText = document.getElementById("date_id").value;
+    $("#time_lb").show();
     $("#save_btn").hide();
+    $("#tag").removeAttr("readonly");
     $("#save_changes_btn").show();
     $("#title").show();
     $("#title_lb").show();
@@ -116,12 +115,21 @@ function renderEvent(event_id, time, event) {
 function updateEvent() {
     let title = document.getElementById("title").value;
     let event_id = document.getElementById("id").value;
+    let dates = document.getElementById("date_id").value;
+    let date = dates.split("-");
+    let year = Number(date[0]);
+    let month = Number(date[1]) - 1;
+    let day = Number(date[2]);
+    let time = document.getElementById("time").value.split(":");
+    let hour = Number(time[0]);
+    let minute = Number(time[1]);
     fetch('/api/events/update', {
         method: "POST",
         body: JSON.stringify({
             event_id: event_id,
             update_fields: {
-                event_name: title
+                event_name: title,
+                event_time:  new Date(year, month, day, hour - 5, minute, 0)
             },
             csrf_token: csrf_token
         }),
@@ -130,12 +138,7 @@ function updateEvent() {
       .then(res => res.json())
       .then(function(res) {
           if(res["code"] == 200) {
-              //alert("successful saved");
-              //$("#mydialog").hide();
-              document.getElementById("title").value = "";
-              document.getElementById("date_id").value = "";
-              document.getElementById("time").value = "";
-              document.getElementById("edit_add_title").innerText = "Add Event"
+              $("#mydialog").hide();
               update(loggedIn);
           }
       })
@@ -154,9 +157,9 @@ function deleteEvent(event_id) {
       .then(function(res) {
           if(res["code"] == 200) {
               //alert("delete successful");
-              update(loggedIn);
+                $("#mydialog").hide();
+                update(loggedIn);
           }
       }) 
       .catch(error => console.error('Error:',error))
 }
-

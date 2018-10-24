@@ -15,7 +15,7 @@ function createTag() {
         .then(function(res) {
             //console.log(res);
             if(res["code"] == 201) {
-                alert("tag created");
+                //alert("tag created");
                 document.getElementById("tag").value = "";
                 update(loggedIn);
             } else {
@@ -63,6 +63,7 @@ function getTag(event_id) {
                     $("#save_btn").hide();
                     $("#time").hide();
                     $("#time_lb").hide();
+                    $("#tag").attr("readonly", "readonly")
                     document.getElementById("tag").value = tag_name;
                 })
                 event.appendChild(tag);
@@ -72,9 +73,10 @@ function getTag(event_id) {
 document.getElementById("del_tag_btn").addEventListener("click", function() {
     let event_id = document.getElementById("id").value;
     let tag_name = document.getElementById("tag").value;
-    let del = confirm("Are you sure to delete this event?")
+    let del = confirm("Are you sure to delete this tag?")
     if(del == true) {
         deleteTag(event_id, tag_name);
+        $("#tag").removeAttr("readonly");
     } 
 })
 
@@ -91,7 +93,7 @@ function updateTag(event_id, tag_name, activated) {
     }) 
     $("#mydialog").hide();
 }
-document.getElementById("edit_tags_btn").addEventListener("click", updateTag);
+//document.getElementById("edit_tags_btn").addEventListener("click", updateTag);
 function deleteTag(event_id, tag_name) {
     //delete the tag related to a event
     fetch('api/tags/delete', {
@@ -109,16 +111,3 @@ function deleteTag(event_id, tag_name) {
         }
     })
 }
-/* now = 0;
-last = 0;
-function mouseDown() {
-    last = new Date();
-}
-
-function mouseUp(event_id, tag_name) {
-    now = new Date();
-    if (now - last > 2 * 1000) {
-        //document.getElementById("p1").style.color = "red";
-        deleteTag(event_id, tag_name);
-    }
-} */

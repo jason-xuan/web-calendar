@@ -13,14 +13,17 @@
 
 <body>
     <header>
-        <div style="float: right" class="btn-group" role="group" aria-label="Basic example">
+        <div id="header_group"  class="btn-group" role="group" aria-label="Basic example">
             <button type="button" class="btn btn-secondary btn-sm" id="prev_month">Prev</button>
+            <input type="text" placeholder="mm/yyyy" id="month_select">
+            <button class="btn btn-info btn-sm" id="month_select_btn" > go </button>
             <button type="button" class="btn btn-secondary btn-sm" id="next_month">Next</button>
+            <button type="button" class="btn btn-primary" id="logout_btn">Log out</button>
+            <button type="button" class="btn btn-danger" id="remove_btn">Delete Account</button>
         </div>
+        <button type="button" class="btn btn-primary btn-info" id="help_btn">help</button>
         <!-- <button class="btn btn-info btn-sm" id="prev_month" > prev </button> -->
         <h2 id="display_month">March 2017</h2>
-        <input type="text" placeholder="mm/yyyy" id="month_select">
-        <button class="btn btn-info btn-sm" id="month_select_btn" > go </button>
         <!-- <button class="btn btn-info btn-sm" id="next_month" > next </button> -->
     </header>
 <br>
@@ -37,8 +40,18 @@
         </tr>
         <tbody>
     </table>
-
 </div>
+<dialog id="help">
+    <h4> Instruction</h4>
+    <p> Welcome to your own calendar. </p>
+    <p> Double Click on the day box to create a event.</p>    
+    <p> Edit you event after click on the edit button next to it.</p>
+    <p> Delete it by using del button.</p>
+    <p> Add your own tags to your event in Update dialog.</p>
+    <p> Highlight your tags by clicking on the tags you created.</p>
+    <p> Delete your tags by clicking it. Look at the dialog below.</p>
+    <button type="button" class="btn btn-primary btn-sm" id="close_help_btn">close</button>
+</dialog>
 <div id="loginuser" style="width: 40%; margin: 5px; float: left;">
     <form class="px-4 py-3">
         <div class="form-group">
@@ -66,8 +79,8 @@
     </form>
     
 </div>
-<button type="button" class="btn btn-primary" id="logout_btn">Log out</button>
-<div id="mydialog">
+
+<dialog id="mydialog">
     <h4 id="edit_add_title">Add Event</h4>
     <label for="title" id="title_lb">Event</label>
     <input type="text" name="title" id="title">
@@ -84,7 +97,8 @@
     <input type="button" class="btn btn-primary" value="Save Changes" id="save_changes_btn">
     <button type="button" class="btn btn-sm" id="close_dialog_btn">close</button>
     <input type="hidden" id="csrf_token">
-</div>
+</dialog>
+
 <script  src="../static/login.js"></script>
 <script> var csrf_token = "{{ csrf_token }}"; </script>
 <script  src="../static/home.js"></script>

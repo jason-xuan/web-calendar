@@ -21,6 +21,7 @@ function login() {
 				$("#adduser").hide();	
 				$("#logout_btn").show();
 				$("#save_changes_btn").hide();
+				$("#remove_btn").show();
 			} else {
 				if(response["error"] != null) {
 					alert(response["error"]);
@@ -73,6 +74,7 @@ function logOut() {
 				$("#logout_btn").hide();
 				$("#loginuser").show();
 				$("#adduser").show();
+				$("#remove_btn").hide();
 				//location.reload();
 				document.getElementById("register_email").value = "";
 				document.getElementById("register_password").value = "";
@@ -82,3 +84,33 @@ function logOut() {
 		.catch(error => console.error('Error:', error))
 }
 $("#logout_btn").click(logOut);
+
+function deleteUser() {
+	fetch('/api/users/delete', {
+		method: "POST",
+		body: JSON.stringify({csrf_token: csrf_token}),
+		headers: { "Content-Type": "application/json; charset=utf-8", }
+	})
+	.then(res => res.json())
+	.then(function(res){
+		console.log(res);	
+	})
+}
+document.getElementById("remove_btn").addEventListener("click", function() {
+		let del = confirm("Seriously are you sure to delete this account?");
+		if(del == true) {
+			let del2 = confirm("Think about the consequence!!!");
+			if(del2 == true) {
+				deleteUser();
+				loggedIn = false;
+				update(loggedIn);
+				$("#mydialog").hide();
+				$("#logout_btn").hide();
+				$("#remove_btn").hide();
+				$("#loginuser").show();
+				$("#adduser").show();
+				document.getElementById("register_email").value = "";
+				document.getElementById("register_password").value = "";	
+			}			
+		} 
+});
