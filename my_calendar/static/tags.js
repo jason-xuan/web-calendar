@@ -50,12 +50,34 @@ function getTag(event_id) {
                 }
                 tag.addEventListener("click", function() {
                     activated = !activated;
+                    document.getElementById("id").value = event_id;
                     updateTag(event_id, tag_name, activated);
+                    $("#mydialog").show();
+                    $("#tag_lb").show();
+                    $("#tag").show();
+                    $("#del_tag_btn").show();
+                    $("#title_lb").hide();
+                    $("#title").hide();
+                    $("#save_tags_btn").hide();
+                    $("#save_changes_btn").hide();
+                    $("#save_btn").hide();
+                    $("#time").hide();
+                    $("#time_lb").hide();
+                    document.getElementById("tag").value = tag_name;
                 })
                 event.appendChild(tag);
             }
         })
 }
+document.getElementById("del_tag_btn").addEventListener("click", function() {
+    let event_id = document.getElementById("id").value;
+    let tag_name = document.getElementById("tag").value;
+    let del = confirm("Are you sure to delete this event?")
+    if(del == true) {
+        deleteTag(event_id, tag_name);
+    } 
+})
+
 function updateTag(event_id, tag_name, activated) {
     fetch('/api/tags/update', {
         method: "POST",
@@ -68,16 +90,6 @@ function updateTag(event_id, tag_name, activated) {
         update(loggedIn);
     }) 
     $("#mydialog").hide();
-   /*  $("#tag").show();
-    $("#edit_tag_btn").show()
-    $("#title").hide();
-    $("#title_lb").hide();
-    $("#save_changes_btn").hide();
-    $("#save_tags_btn").hide();
-    $("#time").hide();
-    $("#time_lb").hide(); */
-    //document.getElementById("id").value = event_id;
-    //document.getElementById("tag").value = tag_name;
 }
 document.getElementById("edit_tags_btn").addEventListener("click", updateTag);
 function deleteTag(event_id, tag_name) {
@@ -91,8 +103,22 @@ function deleteTag(event_id, tag_name) {
     .then(function(res) {
         //console.log(res);
         if(res["code"] == 200) {
-            update("logedIn");
+            //update("logedIn");
+            update(loggedIn);
             $("#mydialog").hide();
         }
     })
 }
+/* now = 0;
+last = 0;
+function mouseDown() {
+    last = new Date();
+}
+
+function mouseUp(event_id, tag_name) {
+    now = new Date();
+    if (now - last > 2 * 1000) {
+        //document.getElementById("p1").style.color = "red";
+        deleteTag(event_id, tag_name);
+    }
+} */

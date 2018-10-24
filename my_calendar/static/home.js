@@ -70,6 +70,7 @@ function update (loggedIn) {
                         $("#tag_lb").hide();
                         $("#save_tags_btn").hide();
                         $("#save_changes_btn").hide();
+                        $("#del_tag_btn").hide();
                         document.getElementById("edit_add_title").innerHTML = "Add Event on" + "hello";
                         document.getElementById("title").value = "";
                         document.getElementById("time").value = "";
