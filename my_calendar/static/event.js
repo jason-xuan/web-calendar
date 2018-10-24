@@ -104,7 +104,11 @@ function renderEvent(event_id, time, event) {
     $("#time_lb").hide();
     $("#save_btn").hide();
     $("#save_changes_btn").show();
+    $("#title").show();
+    $("#title_lb").show();
+    $("#del_tag_btn").hide();
     $("#tag").show();
+    document.getElementById("tag").value = "";
     $("#tag_lb").show();
     $("#save_tags_btn").show();
 }
@@ -127,7 +131,7 @@ function updateEvent() {
       .then(function(res) {
           if(res["code"] == 200) {
               //alert("successful saved");
-              $("#mydialog").hide();
+              //$("#mydialog").hide();
               document.getElementById("title").value = "";
               document.getElementById("date_id").value = "";
               document.getElementById("time").value = "";
@@ -155,3 +159,4 @@ function deleteEvent(event_id) {
       }) 
       .catch(error => console.error('Error:',error))
 }
+
