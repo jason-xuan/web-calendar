@@ -36,24 +36,49 @@ function getTag(event_id) {
             let event = document.getElementById(event_id);
             for(let i = 0; i < res.tags.length; i++) {
                 //if(tags[i].activated == true)
+                //console.log(res.tags[i].activated);
+                let activated = res.tags[i].activated;
+                let tag_name = res.tags[i].tag_name;
                 let tag = document.createElement("a");
                 tag.setAttribute("class", "tag");
                 tag.setAttribute("type", "button");
-                tag.appendChild(document.createTextNode(res.tags[i].tag_name));
+                if(activated) {
+                    tag.appendChild(document.createTextNode(res.tags[i].tag_name + "!!!"));
+                } else {
+                    tag.appendChild(document.createTextNode(res.tags[i].tag_name));
+                }
                 tag.addEventListener("click", function() {
-                    alert("tag:" + res.tags[i].tag_name);
-                    deleteTag(event_id, res.tags[i].tag_name);             
-                    /* response = client.post('/api/tags/delete', json={
-                        'event_id': self.event_id,
-                        'tag_name': 'important',
-                        'csrf_token': self.csrf_token
-                    }) */
-                    //deleteTag()
+                    activated = !activated;
+                    updateTag(event_id, tag_name, activated);
                 })
                 event.appendChild(tag);
             }
         })
 }
+function updateTag(event_id, tag_name, activated) {
+    fetch('/api/tags/update', {
+        method: "POST",
+        body: JSON.stringify({event_id: event_id, tag_name: tag_name, activated: activated, csrf_token: csrf_token}),
+        headers: { "Content-Type": "application/json; charset=utf-8" }        
+    })
+    .then(res => res.json())
+    .then(function(res) {
+        console.log(res);
+        update(loggedIn);
+    }) 
+    $("#mydialog").hide();
+   /*  $("#tag").show();
+    $("#edit_tag_btn").show()
+    $("#title").hide();
+    $("#title_lb").hide();
+    $("#save_changes_btn").hide();
+    $("#save_tags_btn").hide();
+    $("#time").hide();
+    $("#time_lb").hide(); */
+    //document.getElementById("id").value = event_id;
+    //document.getElementById("tag").value = tag_name;
+}
+document.getElementById("edit_tags_btn").addEventListener("click", updateTag);
 function deleteTag(event_id, tag_name) {
     //delete the tag related to a event
     fetch('api/tags/delete', {
@@ -66,6 +91,7 @@ function deleteTag(event_id, tag_name) {
         console.log(res);
         if(res["code"] == 200) {
             update("logedIn");
+            $("#mydialog").hide();
         }
     })
 }

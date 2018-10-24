@@ -44,12 +44,15 @@ function register() {
 		.then(function(res){
 			console.log(res);
 			if(res["code"] == 201) {
-				loggedIn = true;
-				update(loggedIn);
-				$("#loginuser").hide();
+				alert("register successfully!")
+				//loggedIn = true;
+				//update(loggedIn);
+				document.getElementById("register_email").value = "";
+				document.getElementById("register_password").value = "";
+				/* $("#loginuser").hide();
 				$("#adduser").hide();	
 				$("#logout_btn").show();
-				$("#save_changes_btn").hide();
+				$("#save_changes_btn").hide(); */
 			} else {
 				alert(res["error"]);
 			}

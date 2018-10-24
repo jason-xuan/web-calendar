@@ -6,7 +6,7 @@ function getEvent(month, year) {
     })
         .then(res => res.json())
         .then(function (res) {
-            console.log(res.events.length)
+            //console.log(res.events.length)
             let event_other = document.createElement("p");
             for (let i = 0; i < res.events.length; i++) {
                 let event_div = document.createElement("div");
