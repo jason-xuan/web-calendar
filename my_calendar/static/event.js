@@ -66,6 +66,10 @@ function createEvent(dates) {
     let time = document.getElementById("time").value.split(":");
     let hour = Number(time[0]);
     let minute = Number(time[1]);
+    if(hour > 23 || hour < 0 || minute > 60 || minute < 0 || !hour || !minute) {
+        alert("invalid time");
+        return;
+    }
     fetch('/api/events/create', {
         method: "POST",
         body: JSON.stringify({ event_name: title, event_time: new Date(year, month, day, hour - 5, minute, 0), csrf_token: csrf_token}),
