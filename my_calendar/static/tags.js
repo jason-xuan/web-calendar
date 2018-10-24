@@ -7,7 +7,7 @@ function createTag() {
     let event_id = document.getElementById("id").value;
     let tag_value = document.getElementById("tag").value;
     let reg_event = /^[a-zA-Z0-9_]+$/;
-        if(!reg_event.exec(title)) {
+        if(!reg_event.exec(tag_value)) {
             alert("Please enter your event title again");
             return;
         }
